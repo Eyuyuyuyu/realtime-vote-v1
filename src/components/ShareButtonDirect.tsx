@@ -19,6 +19,7 @@ export const ShareButtonDirect: React.FC<ShareButtonDirectProps> = ({
   className = ''
 }) => {
   const [copied, setCopied] = useState(false);
+  const [hasBeenCopied, setHasBeenCopied] = useState(false);
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -31,8 +32,9 @@ export const ShareButtonDirect: React.FC<ShareButtonDirectProps> = ({
     const success = await ShareUtils.copyToClipboard(shareLink);
     if (success) {
       setCopied(true);
-      // 1.5秒后恢复，给动画足够时间
-      setTimeout(() => setCopied(false), 1500);
+      setHasBeenCopied(true);
+      // 2秒后恢复，给动画更多时间
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -49,7 +51,21 @@ export const ShareButtonDirect: React.FC<ShareButtonDirectProps> = ({
             className={`w-8 h-8 rounded-full inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground ${className}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            initial={{ scale: 1, opacity: 1 }}
+            initial={{ 
+              scale: hasBeenCopied ? 0 : 1, 
+              opacity: hasBeenCopied ? 0 : 1 
+            }}
+            animate={{ 
+              scale: 1, 
+              opacity: 1,
+              transition: hasBeenCopied ? { 
+                duration: 0.3, 
+                type: "spring", 
+                stiffness: 300, 
+                damping: 25,
+                delay: 0.2 // 延迟0.2秒开始进入动画，确保成功动画完全退出
+              } : { duration: 0 } // 首次加载无动画
+            }}
             exit={{ 
               scale: 0, 
               opacity: 0,
@@ -65,7 +81,14 @@ export const ShareButtonDirect: React.FC<ShareButtonDirectProps> = ({
             className="flex items-center justify-center"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
+            exit={{ 
+              scale: 0,
+              transition: { 
+                duration: 0.3, 
+                ease: "easeInOut",
+                delay: 0.1 // 延迟0.1秒开始退出动画
+              }
+            }}
             transition={{ 
               duration: 0.4, 
               type: "spring", 

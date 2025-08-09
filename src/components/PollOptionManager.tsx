@@ -59,7 +59,7 @@ export const PollOptionManager: React.FC<PollOptionManagerProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="flex items-center gap-3"
+              className="flex items-start gap-3"
             >
               <div className="flex-1">
                 <Input
