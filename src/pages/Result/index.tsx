@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { AlertCircle, Clock, Users, BarChart3, ArrowLeft, RefreshCw } from 'lucide-react';
 import { pollsApi, Poll, RealtimeChannel } from '../../lib/supabaseClient';
+import ShareButton from '../../components/ShareButton';
 
 interface ResultData {
   id: string;
@@ -169,14 +170,23 @@ const Result: React.FC = () => {
             返回首页
           </Link>
           
-          <button
-            onClick={() => fetchPollResult(true)}
-            disabled={isRefreshing}
-            className="inline-flex items-center px-3 py-2 text-sm bg-muted hover:bg-muted/80 rounded-lg transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            刷新数据
-          </button>
+          <div className="flex items-center gap-3">
+            <ShareButton 
+              pollId={pollResult.poll.id}
+              pollTitle={pollResult.poll.title}
+              shareType="result"
+              variant="outline"
+              size="sm"
+            />
+            <button
+              onClick={() => fetchPollResult(true)}
+              disabled={isRefreshing}
+              className="inline-flex items-center px-3 py-2 text-sm bg-muted hover:bg-muted/80 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              刷新数据
+            </button>
+          </div>
         </motion.div>
 
         {/* 投票标题和状态 */}

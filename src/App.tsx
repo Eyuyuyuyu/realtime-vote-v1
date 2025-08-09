@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ThemeProvider } from './components/ThemeProvider';
 import { SimpleThemeToggle } from './components/ThemeToggle';
 import { pollsApi, Poll } from './lib/supabaseClient';
+import ShareButton from './components/ShareButton';
 import CreatePoll from './pages/CreatePoll';
 import PollPage from './pages/Poll';
 import Result from './pages/Result';
@@ -257,6 +258,16 @@ const Home: React.FC = () => {
                                 {poll.description}
                               </p>
                             )}
+                          </div>
+                          <div className="ml-2 flex-shrink-0">
+                            <ShareButton 
+                              pollId={poll.id}
+                              pollTitle={poll.title}
+                              shareType="poll"
+                              variant="ghost"
+                              size="sm"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            />
                           </div>
                         </div>
 

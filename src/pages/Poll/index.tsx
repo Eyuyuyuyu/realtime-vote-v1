@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Clock, CheckCircle, Users, AlertCircle } from 'lucide-react';
+import { Clock, CheckCircle, Users, AlertCircle, Shield } from 'lucide-react';
 import { pollsApi, Poll as PollType, RealtimeChannel, getUserId } from '../../lib/supabaseClient';
+import { AntiSpamUtils } from '../../lib/antiSpamUtils';
+import ShareButton from '../../components/ShareButton';
 import useLocalStorageState from 'use-local-storage-state';
 
 interface ChartData {
@@ -25,6 +27,7 @@ const Poll: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [realtimeChannel, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
+  const [antiSpamWarning, setAntiSpamWarning] = useState<string | null>(null);
   
   // 获取用户ID（用于防重复投票）
   const userId = React.useMemo(() => {
@@ -76,6 +79,15 @@ const Poll: React.FC = () => {
         // 如果检查失败，继续使用本地缓存状态
         console.warn('检查投票状态失败，使用本地缓存状态:', err);
       }
+
+      // 检查防刷票状态 [[memory:2457904]]
+      if (id) {
+        const spamCheck = AntiSpamUtils.hasVoted(id, userId);
+        if (spamCheck.hasVoted && !hasVoted) {
+          console.log(`[AntiSpam] 检测到投票记录，来源: ${spamCheck.source}`);
+          setHasVoted(true);
+        }
+      }
     } catch (err: any) {
       setError(err.message || '加载投票失败');
     } finally {
@@ -85,11 +97,42 @@ const Poll: React.FC = () => {
 
   // 处理投票
   const handleVote = async (optionId: string) => {
-    if (!poll || hasVoted || isSubmitting || isExpired(poll)) return;
+    if (!poll || hasVoted || isSubmitting || isExpired(poll) || !id) return;
     
     try {
       setIsSubmitting(true);
+      setAntiSpamWarning(null);
+
+      // 防刷票检查 [[memory:2457904]]
+      // 1. 检查投票频率限制
+      const rateLimit = AntiSpamUtils.checkVoteRateLimit(id, 1); // 1分钟限制
+      if (!rateLimit.allowed) {
+        setAntiSpamWarning(`请等待 ${rateLimit.waitTime} 秒后再投票`);
+        return;
+      }
+
+      // 2. 检查多重投票状态
+      const spamCheck = AntiSpamUtils.hasVoted(id, userId);
+      if (spamCheck.hasVoted) {
+        setAntiSpamWarning('检测到重复投票，已被阻止');
+        setHasVoted(true);
+        return;
+      }
+
+      // 3. 检查设备投票状态
+      const deviceVoted = AntiSpamUtils.hasDeviceVoted(id);
+      if (deviceVoted) {
+        setAntiSpamWarning('此设备已经投票过了');
+        return;
+      }
+
+      // 执行投票
       await pollsApi.vote(poll.id, optionId, userId);
+      
+      // 标记防刷票状态
+      AntiSpamUtils.markAsVoted(id, userId, optionId);
+      AntiSpamUtils.markDeviceAsVoted(id);
+      AntiSpamUtils.updateVoteRateLimit(id);
       
       // 更新本地状态
       setHasVoted(true);
@@ -129,6 +172,9 @@ const Poll: React.FC = () => {
   // 初始加载
   useEffect(() => {
     fetchPoll();
+    
+    // 定期清理过期的防刷票数据 [[memory:2457904]]
+    AntiSpamUtils.cleanupExpiredData(30);
   }, [fetchPoll]);
 
   // 清理
@@ -221,10 +267,23 @@ const Poll: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-foreground mb-2">{poll.title}</h1>
-          {poll.description && (
-            <p className="text-muted-foreground text-lg">{poll.description}</p>
-          )}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-foreground mb-2">{poll.title}</h1>
+              {poll.description && (
+                <p className="text-muted-foreground text-lg">{poll.description}</p>
+              )}
+            </div>
+            <div className="ml-4">
+              <ShareButton 
+                pollId={poll.id} 
+                pollTitle={poll.title} 
+                shareType="poll"
+                variant="outline"
+                size="md"
+              />
+            </div>
+          </div>
           
           <div className="flex items-center space-x-6 mt-4 text-sm text-muted-foreground">
             <div className="flex items-center space-x-2">
@@ -249,6 +308,22 @@ const Poll: React.FC = () => {
             )}
           </div>
         </motion.div>
+
+        {/* 防刷票警告 */}
+        {antiSpamWarning && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+          >
+            <div className="flex items-center space-x-2 text-red-800">
+              <Shield className="w-5 h-5" />
+              <span className="font-medium">安全提示</span>
+            </div>
+            <p className="text-red-700 text-sm mt-1">{antiSpamWarning}</p>
+          </motion.div>
+        )}
 
         {expired && (
           <motion.div
