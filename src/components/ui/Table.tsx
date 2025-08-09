@@ -141,13 +141,13 @@ export const Table = <T extends Record<string, any>>({
           <thead>
             <tr>
               {columns.map((column) => (
-                <th
-                  key={column.key}
-                  className={`${column.align ? `text-${column.align}` : ''} ${
-                    column.className || ''
-                  }`}
-                  style={{ width: column.width }}
-                >
+                              <th
+                key={column.key}
+                className={`${column.align ? `text-${column.align}` : 'text-left'} ${
+                  column.className || ''
+                }`}
+                style={{ width: column.width }}
+              >
                   {column.title}
                 </th>
               ))}
@@ -172,7 +172,7 @@ export const Table = <T extends Record<string, any>>({
                 {columns.map((column) => (
                   <td
                     key={column.key}
-                    className={`${column.align ? `text-${column.align}` : ''} ${
+                    className={`${column.align ? `text-${column.align}` : 'text-left'} ${
                       column.className || ''
                     }`}
                   >

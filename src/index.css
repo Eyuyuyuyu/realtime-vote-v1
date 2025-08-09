@@ -243,7 +243,7 @@
   }
 
   .ui-table th {
-    @apply text-left font-semibold text-foreground;
+    @apply font-semibold text-foreground;
     @apply px-4 py-3 text-sm md:text-base;
     background-color: var(--table-header);
     border-bottom: 1px solid var(--table-border);
