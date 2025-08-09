@@ -4,6 +4,77 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
 
+// 生成UUID v4格式的ID
+export const generateUUID = (): string => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
+// 验证UUID格式
+const isValidUUID = (uuid: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+};
+
+// 清理localStorage中的无效数据
+const cleanupInvalidData = (): void => {
+  const cleanupKeys = [];
+  
+  // 检查所有localStorage项
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key) {
+      // 检查用户ID相关的键
+      if (key === 'user-id') {
+        const value = localStorage.getItem(key);
+        if (value && !isValidUUID(value)) {
+          cleanupKeys.push(key);
+        }
+      }
+      // 检查投票相关的键，如果关联到无效用户ID也清理
+      else if (key.startsWith('poll-voted-') || key.startsWith('poll-option-') || key === 'current-user-id') {
+        const userId = localStorage.getItem('user-id');
+        if (userId && !isValidUUID(userId)) {
+          cleanupKeys.push(key);
+        }
+      }
+    }
+  }
+  
+  // 清理无效的键
+  cleanupKeys.forEach(key => {
+    console.warn(`清理无效的localStorage项: ${key}`);
+    localStorage.removeItem(key);
+  });
+};
+
+// 获取或生成用户ID
+export const getUserId = (): string => {
+  // 先执行一次性清理
+  cleanupInvalidData();
+  
+  const existingId = localStorage.getItem('user-id');
+  
+  // 如果存在ID但格式不正确，清除并重新生成
+  if (existingId && !isValidUUID(existingId)) {
+    console.warn('检测到无效的用户ID格式，重新生成:', existingId);
+    localStorage.removeItem('user-id');
+  }
+  
+  // 如果没有有效ID或ID格式无效，生成新的
+  if (!existingId || !isValidUUID(existingId)) {
+    const newId = generateUUID();
+    localStorage.setItem('user-id', newId);
+    console.log('生成新的用户ID:', newId);
+    return newId;
+  }
+  
+  return existingId;
+};
+
 // 创建 Supabase 客户端
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   realtime: {
@@ -41,6 +112,7 @@ export interface CreatePollInput {
   description?: string;
   is_multiple: boolean;
   expires_at?: string;
+  creator_id?: string;
   options: string[]; // 选项文本数组
 }
 
@@ -59,40 +131,46 @@ export type RealtimeChannel = ReturnType<typeof supabase.channel>;
 export const pollsApi = {
   // 创建投票
   async createPoll(input: CreatePollInput): Promise<Poll> {
-    // 首先创建投票
-    const { data: pollData, error: pollError } = await supabase
-      .from('polls')
-      .insert([{
-        title: input.title,
-        description: input.description,
-        is_multiple: input.is_multiple,
-        expires_at: input.expires_at,
-        is_active: true,
-      }])
-      .select()
-      .single();
+    try {
+      // 首先创建投票
+      const { data: pollData, error: pollError } = await supabase
+        .from('polls')
+        .insert([{
+          title: input.title,
+          description: input.description,
+          is_multiple: input.is_multiple,
+          expires_at: input.expires_at,
+          creator_id: input.creator_id,
+          is_active: true,
+        }])
+        .select()
+        .single();
 
-    if (pollError) throw pollError;
+      if (pollError) throw pollError;
 
-    // 然后创建选项
-    const optionsData = input.options.map(optionText => ({
-      poll_id: pollData.id,
-      text: optionText,
-      vote_count: 0,
-    }));
+      // 然后创建选项
+      const optionsData = input.options.map(optionText => ({
+        poll_id: pollData.id,
+        text: optionText,
+        vote_count: 0,
+      }));
 
-    const { data: optionsResult, error: optionsError } = await supabase
-      .from('poll_options')
-      .insert(optionsData)
-      .select();
+      const { data: optionsResult, error: optionsError } = await supabase
+        .from('poll_options')
+        .insert(optionsData)
+        .select();
 
-    if (optionsError) throw optionsError;
+      if (optionsError) throw optionsError;
 
-    // 返回完整的投票数据
-    return {
-      ...pollData,
-      options: optionsResult,
-    };
+      // 返回完整的投票数据，确保 options 是数组
+      return {
+        ...pollData,
+        options: optionsResult || [],
+      };
+    } catch (error) {
+      console.error('创建投票失败:', error);
+      throw error;
+    }
   },
 
   // 获取投票详情
@@ -120,6 +198,20 @@ export const pollsApi = {
 
   // 投票
   async vote(pollId: string, optionId: string, userId?: string): Promise<Vote> {
+    // 首先检查用户是否已经投票过
+    if (userId) {
+      const { data: existingVotes } = await supabase
+        .from('votes')
+        .select('id')
+        .eq('poll_id', pollId)
+        .eq('user_id', userId)
+        .limit(1);
+      
+      if (existingVotes && existingVotes.length > 0) {
+        throw new Error('您已经投票过了');
+      }
+    }
+
     const { data, error } = await supabase
       .from('votes')
       .insert([{
@@ -132,6 +224,22 @@ export const pollsApi = {
 
     if (error) throw error;
     return data;
+  },
+
+  // 检查用户是否已投票
+  async hasUserVoted(pollId: string, userId: string): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('votes')
+      .select('id')
+      .eq('poll_id', pollId)
+      .eq('user_id', userId)
+      .limit(1);
+
+    if (error) {
+      throw error;
+    }
+    
+    return data && data.length > 0;
   },
 
   // 订阅投票实时更新

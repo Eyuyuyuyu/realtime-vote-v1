@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Textarea } from '../../components/ui/Textarea';
 import { Button } from '../../components/ui/Button';
 import { Switch } from '../../components/ui/Switch';
 import { PollOptionManager } from '../../components/PollOptionManager';
-import { pollsApi, CreatePollInput } from '../../lib/supabaseClient';
+import { pollsApi, CreatePollInput, getUserId } from '../../lib/supabaseClient';
 
 interface FormData {
   title: string;
@@ -73,6 +73,7 @@ const CreatePoll: React.FC = () => {
         description: formData.description.trim() || undefined,
         is_multiple: formData.isMultiple,
         expires_at: formData.expiresAt || undefined,
+        creator_id: getUserId(),
         options: validOptions,
       };
 
