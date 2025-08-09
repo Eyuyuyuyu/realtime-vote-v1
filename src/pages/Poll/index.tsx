@@ -392,7 +392,7 @@ const Poll: React.FC = () => {
                       transition={{ duration: 0.3, delay: 0.1 * index }}
                       onClick={() => handleVote(option.id)}
                       disabled={isSubmitting}
-                      className="w-full p-4 text-left bg-muted hover:bg-muted/80 rounded-lg border border-border transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed group"
+                      className="w-full p-4 text-left bg-background hover:bg-secondary rounded-lg border border-border transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-foreground font-medium group-hover:text-primary transition-colors">
@@ -445,7 +445,7 @@ const Poll: React.FC = () => {
                       className={`p-4 rounded-lg border ${
                         isUserVoted 
                           ? 'bg-primary/10 border-primary shadow-md' 
-                          : 'bg-muted border-border'
+                          : 'bg-background border-border'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
