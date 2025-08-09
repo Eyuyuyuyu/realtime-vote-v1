@@ -60,7 +60,7 @@ export const SimpleThemeToggle: React.FC = () => {
   return (
     <motion.button
       onClick={toggleTheme}
-      className="p-2 rounded-md bg-muted hover:bg-muted/80 text-foreground transition-colors duration-200"
+      className="hover:bg-muted/80 text-foreground transition-colors duration-200"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       aria-label="切换主题"

@@ -38,7 +38,7 @@ const App: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="flex items-center space-x-4"
               >
-                <Link
+                {/* <Link
                   to="/create"
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
                 >
@@ -55,7 +55,7 @@ const App: React.FC = () => {
                   className="px-4 py-2 bg-auxiliary text-foreground rounded-md hover:bg-auxiliary/80 transition-colors font-medium"
                 >
                   UI 展示
-                </Link>
+                </Link> */}
                 <SimpleThemeToggle />
               </motion.div>
             </div>

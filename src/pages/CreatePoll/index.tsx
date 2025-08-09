@@ -13,6 +13,7 @@ interface FormData {
   title: string;
   description: string;
   isMultiple: boolean;
+  isPublic: boolean;
   expiresAt: string;
   options: string[];
 }
@@ -31,6 +32,7 @@ const CreatePoll: React.FC = () => {
     title: '',
     description: '',
     isMultiple: false,
+    isPublic: true,
     expiresAt: '',
     options: ['', '']
   });
@@ -72,6 +74,7 @@ const CreatePoll: React.FC = () => {
         title: formData.title.trim(),
         description: formData.description.trim() || undefined,
         is_multiple: formData.isMultiple,
+        is_public: formData.isPublic,
         expires_at: formData.expiresAt || undefined,
         creator_id: getUserId(),
         options: validOptions,
@@ -152,6 +155,13 @@ const CreatePoll: React.FC = () => {
                 description="开启后用户可以选择多个选项"
                 checked={formData.isMultiple}
                 onChange={(e) => setFormData(prev => ({ ...prev, isMultiple: e.target.checked }))}
+              />
+
+              <Switch
+                label="公开投票"
+                description="公开的投票会在首页显示，非公开的只能通过分享链接访问"
+                checked={formData.isPublic}
+                onChange={(e) => setFormData(prev => ({ ...prev, isPublic: e.target.checked }))}
               />
 
               <Input

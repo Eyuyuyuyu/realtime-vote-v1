@@ -12,6 +12,7 @@ CREATE TABLE polls (
   is_multiple BOOLEAN DEFAULT false,
   expires_at TIMESTAMP WITH TIME ZONE,
   is_active BOOLEAN DEFAULT true,
+  is_public BOOLEAN DEFAULT true,
   creator_id UUID,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -25,6 +26,7 @@ CREATE TABLE polls (
 - `is_multiple`: 是否允许多选
 - `expires_at`: 投票有效期（可选，留空表示永不过期）
 - `is_active`: 投票是否激活
+- `is_public`: 是否公开（公开的投票会在首页显示，非公开的只能通过分享链接访问）
 - `creator_id`: 创建者ID（可选）
 - `created_at`: 创建时间
 - `updated_at`: 更新时间
@@ -73,6 +75,8 @@ CREATE TABLE votes (
 -- 为了优化查询性能，建议创建以下索引
 CREATE INDEX idx_polls_created_at ON polls(created_at);
 CREATE INDEX idx_polls_is_active ON polls(is_active);
+CREATE INDEX idx_polls_is_public ON polls(is_public);
+CREATE INDEX idx_polls_public_created ON polls(is_public, created_at);
 CREATE INDEX idx_poll_options_poll_id ON poll_options(poll_id);
 CREATE INDEX idx_votes_poll_id ON votes(poll_id);
 CREATE INDEX idx_votes_option_id ON votes(option_id);
@@ -119,6 +123,9 @@ ALTER TABLE votes ENABLE ROW LEVEL SECURITY;
 -- 设置策略（允许所有人读取，但限制写入）
 CREATE POLICY "Allow read access for all users" ON polls FOR SELECT USING (true);
 CREATE POLICY "Allow insert for authenticated users" ON polls FOR INSERT WITH CHECK (true);
+
+-- 可选：如果需要更严格的访问控制，可以设置只有公开投票才能被所有人查看
+-- CREATE POLICY "Public polls readable by all" ON polls FOR SELECT USING (is_public = true OR auth.uid() = creator_id);
 
 CREATE POLICY "Allow read access for all users" ON poll_options FOR SELECT USING (true);
 CREATE POLICY "Allow insert for authenticated users" ON poll_options FOR INSERT WITH CHECK (true);

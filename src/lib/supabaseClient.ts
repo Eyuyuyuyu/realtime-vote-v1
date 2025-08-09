@@ -96,6 +96,7 @@ export interface Poll {
   creator_id?: string;
   is_multiple: boolean; // 是否多选
   expires_at?: string; // 有效期
+  is_public: boolean; // 是否公开
 }
 
 export interface PollOption {
@@ -113,6 +114,7 @@ export interface CreatePollInput {
   is_multiple: boolean;
   expires_at?: string;
   creator_id?: string;
+  is_public: boolean; // 是否公开
   options: string[]; // 选项文本数组
 }
 
@@ -141,6 +143,7 @@ export const pollsApi = {
           is_multiple: input.is_multiple,
           expires_at: input.expires_at,
           creator_id: input.creator_id,
+          is_public: input.is_public,
           is_active: true,
         }])
         .select()
@@ -186,11 +189,18 @@ export const pollsApi = {
   },
 
   // 获取所有投票
-  async getPolls(): Promise<Poll[]> {
-    const { data, error } = await supabase
+  async getPolls(publicOnly: boolean = true): Promise<Poll[]> {
+    let query = supabase
       .from('polls')
       .select('*, options:poll_options(*)')
       .order('created_at', { ascending: false });
+
+    // 如果只获取公开投票，添加过滤条件
+    if (publicOnly) {
+      query = query.eq('is_public', true);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     return data || [];
