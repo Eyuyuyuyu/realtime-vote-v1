@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+
 import { Clock, CheckCircle, Users, AlertCircle, Shield } from 'lucide-react';
 import { pollsApi, Poll as PollType, RealtimeChannel, getUserId } from '../../lib/supabaseClient';
 import { AntiSpamUtils } from '../../lib/antiSpamUtils';
 import ShareButton from '../../components/ShareButton';
 import useLocalStorageState from 'use-local-storage-state';
 
-interface ChartData {
-  name: string;
-  votes: number;
-  color: string;
-}
+
 
 const Poll: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -186,18 +182,7 @@ const Poll: React.FC = () => {
     };
   }, [realtimeChannel]);
 
-  // 准备图表数据
-  const chartData: ChartData[] = React.useMemo(() => {
-    if (!poll?.options) return [];
-    
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
-    
-    return poll.options.map((option, index) => ({
-      name: option.text.length > 20 ? option.text.substring(0, 20) + '...' : option.text,
-      votes: option.vote_count,
-      color: colors[index % colors.length],
-    }));
-  }, [poll?.options]);
+
 
   // 计算总投票数
   const totalVotes = poll?.options.reduce((sum, option) => sum + option.vote_count, 0) || 0;
@@ -383,40 +368,13 @@ const Poll: React.FC = () => {
                 </div>
               </div>
 
-              {/* 图表显示 */}
+
+
+              {/* 投票结果列表 */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="h-64 w-full"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    layout="horizontal"
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" width={100} />
-                    <Tooltip 
-                      formatter={(value: number) => [`${value} 票`, '投票数']}
-                      labelStyle={{ color: '#374151' }}
-                    />
-                    <Bar dataKey="votes" radius={[0, 4, 4, 0]}>
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </motion.div>
-
-              {/* 详细结果列表 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
                 className="space-y-3"
               >
                 {poll.options.map((option, index) => {
