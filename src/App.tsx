@@ -43,12 +43,6 @@ const App: React.FC = () => {
                   创建投票
                 </Link>
                 <Link
-                  to="/poll/demo"
-                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors font-medium"
-                >
-                  示例投票
-                </Link>
-                <Link
                   to="/result/demo"
                   className="px-4 py-2 bg-accent text-accent-foreground rounded-md hover:bg-accent/80 transition-colors font-medium"
                 >

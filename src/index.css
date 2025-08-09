@@ -5,17 +5,23 @@
 @layer base {
   :root {
     /* 浅色模式 UI 配置颜色 */
-    --color-primary: #b1f8f2;
+    --color-primary: #89DAFF;
     --color-secondary: #bcd39c;
     --color-accent: #fffc99;
     --color-auxiliary: #eafdcf;
     --color-background: #ffffff;
-    --color-foreground: #000000;
-    --color-muted: #f5f5f5;
-    --color-border: #e5e5e5;
+    --color-foreground: #333333;
+    --color-muted: #666666;
+    --color-border: #cccccc;
     --color-destructive: #ff4d4f;
     --color-success: #52c41a;
     --color-warning: #faad14;
+
+    /* 浅色模式表格颜色 */
+    --table-header: #f5f5f5;
+    --table-row: #ffffff;
+    --table-row-hover: #f9f9f9;
+    --table-border: #cccccc;
 
     /* 浅色模式按钮颜色 */
     --btn-confirm-bg: #b1f8f2;
@@ -41,10 +47,16 @@
     --color-background: #1a1a1a;
     --color-foreground: #f5f5f5;
     --color-muted: #a0a0a0;
-    --color-border: #404040;
+    --color-border: #444444;
     --color-destructive: #cc3b3d;
     --color-success: #42a518;
     --color-warning: #d18b12;
+
+    /* 暗色模式表格颜色 */
+    --table-header: #222222;
+    --table-row: #1a1a1a;
+    --table-row-hover: #2a2a2a;
+    --table-border: #444444;
 
     /* 暗色模式按钮颜色 */
     --btn-confirm-bg: #81d9d4;
@@ -76,7 +88,32 @@
   @media (max-width: 768px) {
     body {
       font-size: 14px;
+      line-height: 1.6;
     }
+    
+    /* 优化移动端文字可读性 */
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    h4 { font-size: 1.125rem; }
+    
+    /* 增加移动端触摸目标尺寸 */
+    button, .btn-confirm, .btn-delete, .btn-cancel {
+      min-height: 44px;
+      padding: 12px 16px;
+    }
+  }
+
+  /* 小屏手机适配 */
+  @media (max-width: 480px) {
+    body {
+      font-size: 13px;
+    }
+    
+    /* 进一步优化小屏幕文字 */
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.125rem; }
   }
 
   /* 高对比度模式支持 */
@@ -135,5 +172,118 @@
 
   .ui-progress-bar {
     @apply bg-primary h-full rounded-full transition-all duration-300 ease-out;
+  }
+
+  /* 自定义表格样式 */
+  .ui-table {
+    @apply w-full border-collapse rounded-lg overflow-hidden;
+    border: 1px solid var(--table-border);
+    background-color: var(--table-row);
+  }
+
+  .ui-table th {
+    @apply text-left font-semibold text-foreground;
+    @apply px-4 py-3 text-sm md:text-base;
+    background-color: var(--table-header);
+    border-bottom: 1px solid var(--table-border);
+  }
+
+  .ui-table td {
+    @apply text-foreground;
+    @apply px-4 py-3 text-sm md:text-base;
+    border-bottom: 1px solid var(--table-border);
+  }
+
+  .ui-table tbody tr {
+    background-color: var(--table-row);
+    transition: background-color 0.2s ease;
+  }
+
+  .ui-table tbody tr:hover {
+    background-color: var(--table-row-hover);
+  }
+
+  .ui-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* 移动端表格样式 */
+  @media (max-width: 768px) {
+    .ui-table {
+      font-size: 14px;
+    }
+    
+    .ui-table th,
+    .ui-table td {
+      @apply px-3 py-3;
+    }
+    
+    /* 移动端表格优化 */
+    .ui-table th {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .ui-table td {
+      font-size: 14px;
+    }
+  }
+
+  /* 小屏手机表格样式 */
+  @media (max-width: 480px) {
+    .ui-table {
+      font-size: 12px;
+    }
+    
+    .ui-table th,
+    .ui-table td {
+      @apply px-2 py-2;
+    }
+    
+    .ui-table th {
+      font-size: 11px;
+    }
+    
+    .ui-table td {
+      font-size: 12px;
+    }
+  }
+
+  /* 响应式表格容器 */
+  .ui-table-container {
+    @apply w-full overflow-x-auto rounded-lg;
+    border: 1px solid var(--table-border);
+  }
+
+  /* 无障碍性和焦点样式 */
+  .ui-table tbody tr:focus-within {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  button:focus-visible,
+  .btn-confirm:focus-visible,
+  .btn-delete:focus-visible,
+  .btn-cancel:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .ui-input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* 高对比度文字支持 */
+  @media (prefers-contrast: high) {
+    .text-muted {
+      color: var(--color-foreground) !important;
+      opacity: 0.8;
+    }
+    
+    .ui-table th,
+    .ui-table td {
+      border-color: var(--color-foreground) !important;
+    }
   }
 }

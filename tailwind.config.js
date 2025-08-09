@@ -73,6 +73,14 @@ export default {
           DEFAULT: "var(--color-background)",
           foreground: "var(--color-foreground)",
         },
+        
+        // 表格颜色
+        table: {
+          header: "var(--table-header)",
+          row: "var(--table-row)",
+          "row-hover": "var(--table-row-hover)",
+          border: "var(--table-border)",
+        },
       },
       
       // 字体系统

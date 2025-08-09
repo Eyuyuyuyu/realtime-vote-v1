@@ -15,6 +15,11 @@ export interface ColorScheme {
   destructive: string;
   success: string;
   warning: string;
+  // 表格相关颜色
+  tableHeader: string;
+  tableRow: string;
+  tableRowHover: string;
+  tableBorder: string;
 }
 
 export interface ButtonColors {
@@ -87,12 +92,17 @@ const lightColors: ColorScheme = {
   accent: '#fffc99',       // 高亮色：黄色
   auxiliary: '#eafdcf',    // 辅助色：浅绿色
   background: '#ffffff',   // 背景色：白色
-  foreground: '#000000',   // 字体颜色：黑色
-  muted: '#f5f5f5',       // 次要文本颜色
-  border: '#e5e5e5',      // 边框颜色
+  foreground: '#333333',   // 字体颜色：深灰色（提升对比度）
+  muted: '#666666',       // 次要文本颜色（提升对比度）
+  border: '#cccccc',      // 边框颜色（提升对比度）
   destructive: '#ff4d4f',  // 危险色：红色
   success: '#52c41a',     // 成功色：绿色
   warning: '#faad14',     // 警告色：橙色
+  // 表格相关颜色
+  tableHeader: '#f5f5f5',  // 表头背景：浅灰色
+  tableRow: '#ffffff',     // 表格行背景：白色
+  tableRowHover: '#f9f9f9', // 表格行悬停：极浅灰色
+  tableBorder: '#cccccc',  // 表格边框：中灰色
 };
 
 // 暗色模式配色（降低亮度，减少刺眼感）
@@ -104,10 +114,15 @@ const darkColors: ColorScheme = {
   background: '#1a1a1a',   // 暗色背景
   foreground: '#f5f5f5',   // 浅色字体
   muted: '#a0a0a0',       // 次要文本颜色
-  border: '#404040',      // 边框颜色
+  border: '#444444',      // 边框颜色（提升对比度）
   destructive: '#cc3b3d',  // 危险色调暗
   success: '#42a518',     // 成功色调暗
   warning: '#d18b12',     // 警告色调暗
+  // 表格相关颜色
+  tableHeader: '#222222',  // 表头背景：深灰色
+  tableRow: '#1a1a1a',     // 表格行背景：深色
+  tableRowHover: '#2a2a2a', // 表格行悬停：中深灰色
+  tableBorder: '#444444',  // 表格边框：中灰色
 };
 
 // 浅色模式按钮配色
@@ -238,6 +253,10 @@ export const cssVariables = {
     '--color-destructive': lightColors.destructive,
     '--color-success': lightColors.success,
     '--color-warning': lightColors.warning,
+    '--table-header': lightColors.tableHeader,
+    '--table-row': lightColors.tableRow,
+    '--table-row-hover': lightColors.tableRowHover,
+    '--table-border': lightColors.tableBorder,
     '--btn-confirm-bg': lightButtons.confirm.background,
     '--btn-confirm-fg': lightButtons.confirm.foreground,
     '--btn-confirm-hover': lightButtons.confirm.hover,
@@ -260,6 +279,10 @@ export const cssVariables = {
     '--color-destructive': darkColors.destructive,
     '--color-success': darkColors.success,
     '--color-warning': darkColors.warning,
+    '--table-header': darkColors.tableHeader,
+    '--table-row': darkColors.tableRow,
+    '--table-row-hover': darkColors.tableRowHover,
+    '--table-border': darkColors.tableBorder,
     '--btn-confirm-bg': darkButtons.confirm.background,
     '--btn-confirm-fg': darkButtons.confirm.foreground,
     '--btn-confirm-hover': darkButtons.confirm.hover,

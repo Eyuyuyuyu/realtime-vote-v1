@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../hooks/useTheme';
 import { ThemeToggle, SimpleThemeToggle } from './ThemeToggle';
+import { Table, SimpleTable, TableColumn } from './ui/Table';
 
 export const UIShowcase: React.FC = () => {
   const { actualTheme } = useTheme();
@@ -13,6 +14,65 @@ export const UIShowcase: React.FC = () => {
     { name: '选项 B', value: 30, color: 'var(--color-secondary)' },
     { name: '选项 C', value: 20, color: 'var(--color-accent)' },
     { name: '选项 D', value: 5, color: 'var(--color-auxiliary)' },
+  ];
+
+  // 表格示例数据
+  const tableData = [
+    { id: 1, name: '张三', age: 28, city: '北京', votes: 120, status: '活跃' },
+    { id: 2, name: '李四', age: 32, city: '上海', votes: 85, status: '活跃' },
+    { id: 3, name: '王五', age: 25, city: '广州', votes: 67, status: '待审核' },
+    { id: 4, name: '赵六', age: 35, city: '深圳', votes: 43, status: '活跃' },
+    { id: 5, name: '钱七', age: 29, city: '杭州', votes: 156, status: '活跃' },
+  ];
+
+  // 表格列定义
+  const columns: TableColumn[] = [
+    {
+      key: 'name',
+      title: '姓名',
+      dataIndex: 'name',
+      width: '20%',
+    },
+    {
+      key: 'age',
+      title: '年龄',
+      dataIndex: 'age',
+      width: '15%',
+      align: 'center',
+    },
+    {
+      key: 'city',
+      title: '城市',
+      dataIndex: 'city',
+      width: '20%',
+    },
+    {
+      key: 'votes',
+      title: '投票数',
+      dataIndex: 'votes',
+      width: '20%',
+      align: 'right',
+      render: (value) => (
+        <span className="font-medium text-primary">{value}</span>
+      ),
+    },
+    {
+      key: 'status',
+      title: '状态',
+      dataIndex: 'status',
+      width: '25%',
+      render: (value) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            value === '活跃'
+              ? 'bg-success/20 text-success'
+              : 'bg-warning/20 text-warning'
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
   ];
 
   return (
@@ -278,11 +338,71 @@ export const UIShowcase: React.FC = () => {
           </div>
         </motion.section>
 
-        {/* 响应式测试提示 */}
+        {/* 表格展示 */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
+          className="ui-card p-6"
+        >
+          <h2 className="text-2xl font-semibold text-foreground mb-6">表格组件</h2>
+          
+          <div className="space-y-8">
+            {/* 完整功能表格 */}
+            <div>
+              <h3 className="text-lg font-medium text-foreground mb-4">完整功能表格</h3>
+              <Table
+                columns={columns}
+                data={tableData}
+                pagination={true}
+                pageSize={3}
+                hover={true}
+                onRowClick={(record) => alert(`点击了：${record.name}`)}
+              />
+            </div>
+
+            {/* 简化表格 */}
+            <div>
+              <h3 className="text-lg font-medium text-foreground mb-4">简化表格</h3>
+              <SimpleTable
+                headers={['选项', '票数', '占比']}
+                rows={[
+                  ['选项 A', '120', '45%'],
+                  ['选项 B', '85', '32%'],
+                  ['选项 C', '43', '16%'],
+                  ['选项 D', '18', '7%'],
+                ]}
+              />
+            </div>
+
+            {/* 加载状态演示 */}
+            <div>
+              <h3 className="text-lg font-medium text-foreground mb-4">加载状态</h3>
+              <Table
+                columns={columns.slice(0, 3)}
+                data={[]}
+                loading={true}
+                pageSize={3}
+              />
+            </div>
+
+            {/* 空数据状态 */}
+            <div>
+              <h3 className="text-lg font-medium text-foreground mb-4">空数据状态</h3>
+              <Table
+                columns={columns.slice(0, 3)}
+                data={[]}
+                emptyText="没有找到相关数据"
+              />
+            </div>
+          </div>
+        </motion.section>
+
+        {/* 响应式测试提示 */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.9 }}
           className="ui-card p-6 text-center"
         >
           <h2 className="text-2xl font-semibold text-foreground mb-4">响应式测试</h2>
@@ -291,6 +411,7 @@ export const UIShowcase: React.FC = () => {
           </p>
           <div className="text-sm text-muted space-y-1">
             <p>当前视口：<span className="sm:hidden">移动端</span><span className="hidden sm:inline md:hidden">平板端</span><span className="hidden md:inline lg:hidden">小桌面</span><span className="hidden lg:inline">大桌面</span></p>
+            <p className="mt-2">表格在移动端自动变为响应式布局，支持横向滚动。</p>
           </div>
         </motion.section>
       </div>
