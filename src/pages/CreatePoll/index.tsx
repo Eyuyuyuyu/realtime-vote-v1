@@ -190,43 +190,49 @@ const CreatePoll: React.FC = () => {
                 </div>
               )}
               
-              <motion.div
-                className="flex gap-4 ml-auto"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/')}
-                  disabled={isSubmitting}
+              <div className="flex gap-4 ml-auto">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  取消
-                </Button>
-                
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="relative overflow-hidden"
-                >
-                  <motion.span
-                    animate={isSubmitting ? { opacity: 0 } : { opacity: 1 }}
-                    transition={{ duration: 0.2 }}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate('/')}
+                    disabled={isSubmitting}
                   >
-                    创建投票
-                  </motion.span>
-                  
-                  {isSubmitting && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 flex items-center justify-center"
+                    取消
+                  </Button>
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="relative overflow-hidden"
+                  >
+                    <motion.span
+                      animate={isSubmitting ? { opacity: 0 } : { opacity: 1 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    </motion.div>
-                  )}
-                </Button>
-              </motion.div>
+                      创建投票
+                    </motion.span>
+                    
+                    {isSubmitting && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute inset-0 flex items-center justify-center"
+                      >
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      </motion.div>
+                    )}
+                  </Button>
+                </motion.div>
+              </div>
             </div>
           </form>
         </motion.div>
