@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Clock, Users, ArrowLeft, RefreshCw } from 'lucide-react';
@@ -50,9 +50,34 @@ const Result: React.FC = () => {
   };
 
   // 处理实时更新
-  const handleRealtimeUpdate = () => {
-    fetchPollResult(true);
-  };
+  const handleRealtimeUpdate = useCallback((payload: any) => {
+    // 当有新投票时，只更新对应选项的计数
+    if (payload.new?.option_id && pollResult) {
+      setPollResult(currentResult => {
+        if (!currentResult) return currentResult;
+        
+        const updatedResults = currentResult.results.map(result => 
+          result.id === payload.new.option_id 
+            ? { ...result, votes: result.votes + 1 }
+            : result
+        );
+        
+        const newTotalVotes = currentResult.totalVotes + 1;
+        
+        // 重新计算百分比
+        const resultsWithPercentage = updatedResults.map(result => ({
+          ...result,
+          percentage: newTotalVotes > 0 ? (result.votes / newTotalVotes) * 100 : 0
+        }));
+        
+        return {
+          ...currentResult,
+          totalVotes: newTotalVotes,
+          results: resultsWithPercentage
+        };
+      });
+    }
+  }, [pollResult]);
 
   // 初始加载和实时订阅
   useEffect(() => {

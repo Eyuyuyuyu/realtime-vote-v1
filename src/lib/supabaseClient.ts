@@ -178,14 +178,49 @@ export const pollsApi = {
 
   // 获取投票详情
   async getPoll(id: string): Promise<Poll | null> {
-    const { data, error } = await supabase
-      .from('polls')
-      .select('*, options:poll_options(*)')
-      .eq('id', id)
-      .single();
+    try {
+      // 获取投票基本信息
+      const { data: pollData, error: pollError } = await supabase
+        .from('polls')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    if (error) throw error;
-    return data;
+      if (pollError) throw pollError;
+      if (!pollData) return null;
+
+      // 获取选项信息
+      const { data: optionsData, error: optionsError } = await supabase
+        .from('poll_options')
+        .select('*')
+        .eq('poll_id', id)
+        .order('created_at');
+
+      if (optionsError) throw optionsError;
+
+      // 实时统计每个选项的投票数
+      const optionsWithRealVotes = await Promise.all(
+        (optionsData || []).map(async (option) => {
+          const { count } = await supabase
+            .from('votes')
+            .select('*', { count: 'exact', head: true })
+            .eq('option_id', option.id);
+
+          return {
+            ...option,
+            vote_count: count || 0
+          };
+        })
+      );
+
+      return {
+        ...pollData,
+        options: optionsWithRealVotes
+      };
+    } catch (error) {
+      console.error('获取投票详情失败:', error);
+      throw error;
+    }
   },
 
   // 获取所有投票
@@ -208,32 +243,40 @@ export const pollsApi = {
 
   // 投票
   async vote(pollId: string, optionId: string, userId?: string): Promise<Vote> {
-    // 首先检查用户是否已经投票过
-    if (userId) {
-      const { data: existingVotes } = await supabase
-        .from('votes')
-        .select('id')
-        .eq('poll_id', pollId)
-        .eq('user_id', userId)
-        .limit(1);
-      
-      if (existingVotes && existingVotes.length > 0) {
-        throw new Error('您已经投票过了');
+    try {
+      // 首先检查用户是否已经投票过
+      if (userId) {
+        const { data: existingVotes } = await supabase
+          .from('votes')
+          .select('id')
+          .eq('poll_id', pollId)
+          .eq('user_id', userId)
+          .limit(1);
+        
+        if (existingVotes && existingVotes.length > 0) {
+          throw new Error('您已经投票过了');
+        }
       }
+
+      // 执行投票
+      const { data, error } = await supabase
+        .from('votes')
+        .insert([{
+          poll_id: pollId,
+          option_id: optionId,
+          user_id: userId,
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      console.log('投票成功:', data);
+      return data;
+    } catch (error) {
+      console.error('投票失败:', error);
+      throw error;
     }
-
-    const { data, error } = await supabase
-      .from('votes')
-      .insert([{
-        poll_id: pollId,
-        option_id: optionId,
-        user_id: userId,
-      }])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
   },
 
   // 检查用户是否已投票
@@ -254,19 +297,20 @@ export const pollsApi = {
 
   // 订阅投票实时更新
   subscribeToVotes(pollId: string, callback: (payload: any) => void): RealtimeChannel {
-    return supabase
-      .channel(`votes:poll_id=eq.${pollId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
+    const channel = supabase
+      .channel('votes')
+      .on('postgres_changes', 
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
           table: 'votes',
-          filter: `poll_id=eq.${pollId}`,
-        },
+          filter: `poll_id=eq.${pollId}`
+        }, 
         callback
       )
       .subscribe();
+
+    return channel;
   },
 
   // 取消订阅

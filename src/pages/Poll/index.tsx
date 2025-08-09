@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { Clock, CheckCircle, Users, AlertCircle, Shield } from 'lucide-react';
-import { pollsApi, Poll as PollType, RealtimeChannel, getUserId } from '../../lib/supabaseClient';
+import { pollsApi, Poll as PollType, RealtimeChannel, getUserId, supabase } from '../../lib/supabaseClient';
 import { AntiSpamUtils } from '../../lib/antiSpamUtils';
 import ShareButton from '../../components/ShareButton';
 import useLocalStorageState from 'use-local-storage-state';
@@ -24,6 +24,7 @@ const Poll: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [realtimeChannel, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
   const [antiSpamWarning, setAntiSpamWarning] = useState<string | null>(null);
+
   
   // 获取用户ID（用于防重复投票）
   const userId = React.useMemo(() => {
@@ -52,11 +53,11 @@ const Poll: React.FC = () => {
   }, []);
 
   // 获取投票数据
-  const fetchPoll = useCallback(async () => {
+  const fetchPoll = useCallback(async (showLoader = true) => {
     if (!id) return;
     
     try {
-      setLoading(true);
+      if (showLoader) setLoading(true);
       const pollData = await pollsApi.getPoll(id);
       if (!pollData) {
         setError('投票不存在');
@@ -70,6 +71,20 @@ const Poll: React.FC = () => {
         if (serverHasVoted && !hasVoted) {
           // 如果服务端显示已投票但本地缓存显示未投票，同步状态
           setHasVoted(true);
+          
+          // 尝试从服务端获取用户的投票选项
+          const { data: userVote } = await supabase
+            .from('votes')
+            .select('option_id')
+            .eq('poll_id', id)
+            .eq('user_id', userId)
+            .limit(1)
+            .single();
+          
+          if (userVote) {
+            setVotedOptionId(userVote.option_id);
+            console.log('同步用户投票选项:', userVote.option_id);
+          }
         }
       } catch (err) {
         // 如果检查失败，继续使用本地缓存状态
@@ -87,7 +102,7 @@ const Poll: React.FC = () => {
     } catch (err: any) {
       setError(err.message || '加载投票失败');
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   }, [id, hasVoted, isExpired, userId, setHasVoted]);
 
@@ -123,37 +138,63 @@ const Poll: React.FC = () => {
       }
 
       // 执行投票
-      await pollsApi.vote(poll.id, optionId, userId);
+      const voteResult = await pollsApi.vote(poll.id, optionId, userId);
+      console.log('投票结果:', voteResult);
       
       // 标记防刷票状态
       AntiSpamUtils.markAsVoted(id, userId, optionId);
       AntiSpamUtils.markDeviceAsVoted(id);
       AntiSpamUtils.updateVoteRateLimit(id);
       
-      // 更新本地状态
+      // 立即更新本地状态，不需要重新获取数据
       setHasVoted(true);
       setVotedOptionId(optionId);
       
-      // 立即刷新投票数据以显示最新结果
-      await fetchPoll();
+      // 立即更新本地投票计数（乐观更新）
+      setPoll(currentPoll => {
+        if (!currentPoll) return currentPoll;
+        return {
+          ...currentPoll,
+          options: currentPoll.options.map(option => 
+            option.id === optionId 
+              ? { ...option, vote_count: option.vote_count + 1 }
+              : option
+          )
+        };
+      });
+      
     } catch (err: any) {
+      console.error('投票处理失败:', err);
       setError(err.message || '投票失败');
+      // 如果投票失败，重置状态
+      setHasVoted(false);
+      setVotedOptionId(null);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   // 实时更新处理
-  const handleRealtimeUpdate = useCallback(async (payload: any) => {
-    // 当有新投票时，重新获取投票数据
-    if (payload.eventType === 'INSERT' && payload.new?.poll_id === id) {
-      await fetchPoll();
+  const handleRealtimeUpdate = useCallback((payload: any) => {
+    // 当其他用户投票时，只更新对应选项的计数
+    if (payload.new?.option_id) {
+      setPoll(currentPoll => {
+        if (!currentPoll) return currentPoll;
+        return {
+          ...currentPoll,
+          options: currentPoll.options.map(option => 
+            option.id === payload.new.option_id 
+              ? { ...option, vote_count: option.vote_count + 1 }
+              : option
+          )
+        };
+      });
     }
-  }, [id, fetchPoll]);
+  }, []);
 
   // 设置实时订阅
   useEffect(() => {
-    if (!id || !poll) return;
+    if (!id) return;
     
     const channel = pollsApi.subscribeToVotes(id, handleRealtimeUpdate);
     setRealtimeChannel(channel);
@@ -163,7 +204,7 @@ const Poll: React.FC = () => {
         pollsApi.unsubscribe(channel);
       }
     };
-  }, [id, poll, handleRealtimeUpdate]);
+  }, [id, handleRealtimeUpdate]);
 
   // 初始加载
   useEffect(() => {
@@ -291,6 +332,8 @@ const Poll: React.FC = () => {
                 <span>已投票</span>
               </div>
             )}
+            
+
           </div>
         </motion.div>
 
@@ -331,42 +374,57 @@ const Poll: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="bg-card border border-border rounded-lg p-8 shadow-sm"
         >
-          {!showResults ? (
-            // 投票模式
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground mb-6">请选择一个选项：</h3>
-              <div className="space-y-3">
-                {poll.options.map((option, index) => (
-                  <motion.button
-                    key={option.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 * index }}
-                    onClick={() => handleVote(option.id)}
-                    disabled={isSubmitting}
-                    className="w-full p-4 text-left bg-muted hover:bg-muted/80 rounded-lg border border-border transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-foreground font-medium group-hover:text-primary transition-colors">
-                        {option.text}
-                      </span>
-                      {isSubmitting && (
-                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                      )}
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            // 结果模式
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-foreground">投票结果</h3>
-                <div className="text-sm text-muted-foreground">
-                  总计 {totalVotes} 票
+          <AnimatePresence mode="wait">
+            {!showResults ? (
+              // 投票模式
+              <motion.div
+                key="voting"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                <h3 className="text-xl font-semibold text-foreground mb-6">请选择一个选项：</h3>
+                <div className="space-y-3">
+                  {poll.options.map((option, index) => (
+                    <motion.button
+                      key={option.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: 0.1 * index }}
+                      onClick={() => handleVote(option.id)}
+                      disabled={isSubmitting}
+                      className="w-full p-4 text-left bg-muted hover:bg-muted/80 rounded-lg border border-border transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-foreground font-medium group-hover:text-primary transition-colors">
+                          {option.text}
+                        </span>
+                        {isSubmitting && (
+                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        )}
+                      </div>
+                    </motion.button>
+                  ))}
                 </div>
-              </div>
+              </motion.div>
+            ) : (
+              // 结果模式
+              <motion.div
+                key="results"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold text-foreground">投票结果</h3>
+                  <div className="text-sm text-muted-foreground">
+                    总计 {totalVotes} 票
+                  </div>
+                </div>
 
 
 
@@ -416,8 +474,9 @@ const Poll: React.FC = () => {
                   );
                 })}
               </motion.div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </motion.div>
