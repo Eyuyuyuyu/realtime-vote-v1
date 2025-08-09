@@ -288,21 +288,29 @@ const Home: React.FC = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
+                      className="h-full"
                     >
                       <Link
                         to={`/result/${poll.id}`}
-                        className="block bg-card border border-border rounded-lg p-6 hover:shadow-md hover:border-primary/50 transition-all group"
+                        className="flex flex-col h-full bg-card border border-border rounded-lg p-6 hover:shadow-md hover:border-primary/50 transition-all group"
                       >
+                        {/* 头部区域 - 固定高度 */}
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-xl font-semibold text-foreground mb-2 truncate group-hover:text-primary transition-colors">
+                            <h3 className="text-xl font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
                               {poll.title}
                             </h3>
-                            {poll.description && (
-                              <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                                {poll.description}
-                              </p>
-                            )}
+                            <div className="h-10">
+                              {poll.description ? (
+                                <p className="text-muted-foreground text-sm line-clamp-2 leading-tight">
+                                  {poll.description}
+                                </p>
+                              ) : (
+                                <p className="text-muted-foreground text-sm opacity-60 italic">
+                                  无描述
+                                </p>
+                              )}
+                            </div>
                           </div>
                           <div className="ml-2 flex-shrink-0">
                             <ShareButton 
@@ -316,7 +324,8 @@ const Home: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="space-y-3">
+                        {/* 主体内容区域 - 弹性增长 */}
+                        <div className="flex-1 flex flex-col space-y-3">
                           {/* 状态和统计信息 */}
                           <div className="flex items-center justify-between text-sm">
                             <span className={`flex items-center ${status.color}`}>
@@ -328,46 +337,48 @@ const Home: React.FC = () => {
                             </span>
                           </div>
 
-                          {/* 投票选项预览 */}
-                          <div className="space-y-2">
-                            {poll.options.slice(0, 3).map((option) => {
-                              const percentage = totalVotes > 0 ? (option.vote_count / totalVotes) * 100 : 0;
-                              return (
-                                <div key={option.id} className="text-sm">
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span className="text-foreground truncate">
-                                      {option.text}
-                                    </span>
-                                    <span className="text-muted-foreground ml-2">
-                                      {option.vote_count}
-                                    </span>
+                          {/* 投票选项预览 - 固定最大高度 */}
+                          <div className="flex-1 min-h-0">
+                            <div className="space-y-2 max-h-32 overflow-y-auto">
+                              {poll.options.slice(0, 4).map((option) => {
+                                const percentage = totalVotes > 0 ? (option.vote_count / totalVotes) * 100 : 0;
+                                return (
+                                  <div key={option.id} className="text-sm">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-foreground truncate">
+                                        {option.text}
+                                      </span>
+                                      <span className="text-muted-foreground ml-2 flex-shrink-0">
+                                        {option.vote_count}
+                                      </span>
+                                    </div>
+                                    <div className="w-full bg-muted rounded-full h-1.5">
+                                      <div
+                                        className="bg-primary rounded-full h-1.5 transition-all"
+                                        style={{ width: `${percentage}%` }}
+                                      />
+                                    </div>
                                   </div>
-                                  <div className="w-full bg-muted rounded-full h-1.5">
-                                    <div
-                                      className="bg-primary rounded-full h-1.5 transition-all"
-                                      style={{ width: `${percentage}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              );
-                            })}
-                            {poll.options.length > 3 && (
-                              <p className="text-xs text-muted-foreground">
-                                +{poll.options.length - 3} 个选项
-                              </p>
-                            )}
-                          </div>
-
-                          {/* 时间信息 */}
-                          <div className="pt-2 border-t border-border">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>创建于 {formatTimeAgo(poll.created_at)}</span>
-                              {poll.expires_at && (
-                                <span className={isPollExpired(poll) ? 'text-destructive' : ''}>
-                                  {isPollExpired(poll) ? '已过期' : '截止'} {formatTimeAgo(poll.expires_at)}
-                                </span>
+                                );
+                              })}
+                              {poll.options.length > 4 && (
+                                <p className="text-xs text-muted-foreground pt-1">
+                                  +{poll.options.length - 4} 个选项
+                                </p>
                               )}
                             </div>
+                          </div>
+                        </div>
+
+                        {/* 底部时间信息 - 固定位置 */}
+                        <div className="pt-3 mt-auto border-t border-border">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>创建于 {formatTimeAgo(poll.created_at)}</span>
+                            {poll.expires_at && (
+                              <span className={isPollExpired(poll) ? 'text-destructive' : ''}>
+                                {isPollExpired(poll) ? '已过期' : '截止'} {formatTimeAgo(poll.expires_at)}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </Link>

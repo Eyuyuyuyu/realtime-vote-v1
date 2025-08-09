@@ -67,7 +67,7 @@ export const SimpleThemeToggle: React.FC = () => {
     >
       <motion.div
         initial={false}
-        animate={{ rotate: actualTheme === 'dark' ? 180 : 0 }}
+        animate={{ rotate: actualTheme === 'dark' ? 360 : 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         {actualTheme === 'dark' ? (
