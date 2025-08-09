@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { AlertCircle, Clock, Users, BarChart3, ArrowLeft, RefreshCw } from 'lucide-react';
+import { AlertCircle, Clock, Users, ArrowLeft, RefreshCw } from 'lucide-react';
 import { pollsApi, Poll, RealtimeChannel } from '../../lib/supabaseClient';
 import ShareButton from '../../components/ShareButton';
 
@@ -19,17 +18,7 @@ interface PollResult {
   results: ResultData[];
 }
 
-// 饼图颜色
-const COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--secondary))',
-  'hsl(var(--accent))',
-  'hsl(217, 91%, 60%)',
-  'hsl(142, 76%, 36%)',
-  'hsl(346, 87%, 43%)',
-  'hsl(262, 83%, 58%)',
-  'hsl(32, 98%, 56%)',
-];
+
 
 const Result: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +26,7 @@ const Result: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [viewMode, setViewMode] = useState<'bar' | 'pie'>('bar');
+
   const [, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
 
   // 获取投票结果数据
@@ -96,20 +85,7 @@ const Result: React.FC = () => {
     });
   };
 
-  // 准备图表数据
-  const chartData = pollResult?.results.map(result => ({
-    name: result.text,
-    votes: result.votes,
-    percentage: result.percentage,
-  })) || [];
 
-  // 饼图数据
-  const pieData = pollResult?.results.map((result, index) => ({
-    name: result.text,
-    value: result.votes,
-    percentage: result.percentage,
-    color: COLORS[index % COLORS.length],
-  })) || [];
 
   if (loading) {
     return (
@@ -181,7 +157,7 @@ const Result: React.FC = () => {
             <button
               onClick={() => fetchPollResult(true)}
               disabled={isRefreshing}
-              className="inline-flex items-center px-3 py-2 text-sm bg-muted hover:bg-muted/80 rounded-lg transition-colors disabled:opacity-50"
+              className="inline-flex items-center px-3 py-2 text-sm text-primary hover:text-primary/80 hover:bg-muted/50 rounded-lg transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
               刷新数据
@@ -247,189 +223,77 @@ const Result: React.FC = () => {
           </AnimatePresence>
         </motion.div>
 
-        {/* 图表控制 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mb-6"
-        >
-          <div className="flex items-center gap-2 p-1 bg-muted rounded-lg w-fit">
-            <button
-              onClick={() => setViewMode('bar')}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'bar'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <BarChart3 className="w-4 h-4 mr-2 inline" />
-              柱状图
-            </button>
-            <button
-              onClick={() => setViewMode('pie')}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'pie'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <div className="w-4 h-4 mr-2 inline-block border-2 border-current rounded-full" />
-              饼图
-            </button>
-          </div>
-        </motion.div>
 
-        {/* 图表区域 */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="bg-card border border-border rounded-lg p-8 shadow-sm mb-8"
-        >
-          <AnimatePresence mode="wait">
-            {viewMode === 'bar' ? (
-              <motion.div
-                key="bar-chart"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="h-96 w-full"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    margin={{
-                      top: 20,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis 
-                      dataKey="name" 
-                      tick={{ fill: 'hsl(var(--foreground))' }}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                    />
-                    <YAxis 
-                      tick={{ fill: 'hsl(var(--foreground))' }}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
-                        color: 'hsl(var(--foreground))',
-                      }}
-                      formatter={(value: number) => [
-                        `${value} 票 (${value > 0 ? ((value / pollResult.totalVotes) * 100).toFixed(1) : 0}%)`,
-                        '投票数'
-                      ]}
-                    />
-                    <Bar 
-                      dataKey="votes" 
-                      fill="hsl(var(--primary))" 
-                      name="投票数"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="pie-chart"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="h-96 w-full"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percentage }) => 
-                        percentage > 5 ? `${name} (${percentage.toFixed(1)}%)` : ''
-                      }
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
-                        color: 'hsl(var(--foreground))',
-                      }}
-                      formatter={(value: number) => [
-                        `${value} 票 (${value > 0 ? ((value / pollResult.totalVotes) * 100).toFixed(1) : 0}%)`,
-                        '投票数'
-                      ]}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
 
-        {/* 统计卡片 */}
+        {/* 投票结果表格 */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          className="bg-card border border-border rounded-lg shadow-sm overflow-hidden"
         >
-          {pollResult.results
-            .sort((a, b) => b.votes - a.votes)
-            .map((result, index) => (
-            <motion.div
-              key={result.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-              className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-center mb-2">
-                {index === 0 && result.votes > 0 && (
-                  <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center mr-2">
-                    <span className="text-xs font-bold text-white">1</span>
-                  </div>
-                )}
-                <h3 className="font-semibold text-foreground truncate">
-                  {result.text}
-                </h3>
-              </div>
-              
-              <div className="space-y-2">
-                <p className="text-3xl font-bold text-primary">
-                  {result.votes}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {result.percentage.toFixed(1)}% • {result.votes} 票
-                </p>
-              </div>
-
-              {/* 进度条 */}
-              <div className="mt-4 w-full bg-muted rounded-full h-2">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${result.percentage}%` }}
-                  transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
-                  className="h-2 bg-primary rounded-full"
-                />
-              </div>
-            </motion.div>
-          ))}
+          <div className="ui-table-container">
+            <table className="ui-table">
+              <thead>
+                <tr>
+                  <th className="text-left">排名</th>
+                  <th className="text-left">选项</th>
+                  <th className="text-center">票数</th>
+                  <th className="text-center">百分比</th>
+                  <th className="text-left">进度</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pollResult.results
+                  .sort((a, b) => b.votes - a.votes)
+                  .map((result, index) => (
+                  <motion.tr
+                    key={result.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
+                    className="hover:bg-table-row-hover transition-colors"
+                  >
+                    <td className="text-left">
+                      <div className="flex items-center">
+                        {index === 0 && result.votes > 0 ? (
+                          <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-bold text-white">1</span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">#{index + 1}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="text-left">
+                      <span className="font-medium text-foreground">{result.text}</span>
+                    </td>
+                    <td className="text-center">
+                      <span className="text-lg font-bold text-primary">{result.votes}</span>
+                    </td>
+                    <td className="text-center">
+                      <span className="text-sm font-medium">{result.percentage.toFixed(1)}%</span>
+                    </td>
+                    <td className="text-left">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 bg-muted rounded-full h-2 min-w-[100px]">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${result.percentage}%` }}
+                            transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                            className="h-2 bg-primary rounded-full"
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground w-8 text-right">
+                          {result.percentage.toFixed(0)}%
+                        </span>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </motion.div>
 
         {/* 空状态提示 */}
