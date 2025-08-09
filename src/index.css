@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 浅色模式 UI 配置颜色 */
+    --color-primary: #b1f8f2;
+    --color-secondary: #bcd39c;
+    --color-accent: #fffc99;
+    --color-auxiliary: #eafdcf;
+    --color-background: #ffffff;
+    --color-foreground: #000000;
+    --color-muted: #f5f5f5;
+    --color-border: #e5e5e5;
+    --color-destructive: #ff4d4f;
+    --color-success: #52c41a;
+    --color-warning: #faad14;
+
+    /* 浅色模式按钮颜色 */
+    --btn-confirm-bg: #b1f8f2;
+    --btn-confirm-fg: #000000;
+    --btn-confirm-hover: #9ef0ea;
+    --btn-delete-bg: #ff4d4f;
+    --btn-delete-fg: #ffffff;
+    --btn-delete-hover: #ff7875;
+    --btn-cancel-bg: #d9d9d9;
+    --btn-cancel-fg: #000000;
+    --btn-cancel-hover: #c5c5c5;
+
+    /* 其他设计变量 */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* 暗色模式 UI 配置颜色 */
+    --color-primary: #81d9d4;
+    --color-secondary: #9bb47c;
+    --color-accent: #d1cc80;
+    --color-auxiliary: #c2dfb0;
+    --color-background: #1a1a1a;
+    --color-foreground: #f5f5f5;
+    --color-muted: #a0a0a0;
+    --color-border: #404040;
+    --color-destructive: #cc3b3d;
+    --color-success: #42a518;
+    --color-warning: #d18b12;
+
+    /* 暗色模式按钮颜色 */
+    --btn-confirm-bg: #81d9d4;
+    --btn-confirm-fg: #000000;
+    --btn-confirm-hover: #6fcac4;
+    --btn-delete-bg: #cc3b3d;
+    --btn-delete-fg: #ffffff;
+    --btn-delete-hover: #a52d2f;
+    --btn-cancel-bg: #555555;
+    --btn-cancel-fg: #ffffff;
+    --btn-cancel-hover: #404040;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 移动端适配 */
+  @media (max-width: 768px) {
+    body {
+      font-size: 14px;
+    }
+  }
+
+  /* 高对比度模式支持 */
+  @media (prefers-contrast: high) {
+    :root {
+      --color-border: #000000;
+    }
+    
+    .dark {
+      --color-border: #ffffff;
+    }
+  }
+
+  /* 减少动画的用户偏好支持 */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* 自定义按钮样式 */
+  .btn-confirm {
+    @apply bg-btn-confirm text-btn-confirm-foreground hover:bg-btn-confirm-hover;
+    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  }
+
+  .btn-delete {
+    @apply bg-btn-delete text-btn-delete-foreground hover:bg-btn-delete-hover;
+    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  }
+
+  .btn-cancel {
+    @apply bg-btn-cancel text-btn-cancel-foreground hover:bg-btn-cancel-hover;
+    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  }
+
+  /* 自定义卡片样式 */
+  .ui-card {
+    @apply bg-background border border-border rounded-lg shadow-sm;
+  }
+
+  /* 自定义输入框样式 */
+  .ui-input {
+    @apply bg-background border border-border rounded-md px-3 py-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary;
+  }
+
+  /* 自定义进度条样式 */
+  .ui-progress {
+    @apply w-full bg-muted rounded-full h-2;
+  }
+
+  .ui-progress-bar {
+    @apply bg-primary h-full rounded-full transition-all duration-300 ease-out;
+  }
+}

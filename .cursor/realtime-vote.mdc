@@ -1,0 +1,32 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Cursor Rules for Realtime Voting H5 Project
+
+## Code Style
+- 使用 TypeScript + React 18
+- 样式统一使用 Tailwind CSS，UI 组件使用 shadcn/ui
+- 动画全部使用 Framer Motion 实现
+- 图表使用 Recharts 渲染柱状图 & 百分比进度条
+- 所有颜色和 UI 尺寸统一定义在 /src/config/theme.ts
+- 严格类型约束，不使用 any
+- 移动端优先布局
+- 所有页面支持深色/浅色模式切换
+
+## 功能要求
+- 创建投票、参与投票、查看结果的流程必须完整可用
+- 有效期到期后自动切换到“结果模式”
+- 投票按钮点击后不可重复投票（localStorage + cookie 双限制）
+- 实时同步投票数据（Supabase Realtime）
+- 过期投票不可再修改
+- 投票完成后跳转到结果页并实时更新
+- 支持二维码分享
+- 离线状态下按钮置灰并提示
+- 支持“截止前隐藏结果”配置
+
+## Testing
+- 核心逻辑（投票提交、实时更新、过期判断）需编写单元测试
+- UI 在 iOS Safari、安卓 Chrome、桌面 Chrome 下均需正常显示
+- npm run lint / npm run build 保证要能通过
