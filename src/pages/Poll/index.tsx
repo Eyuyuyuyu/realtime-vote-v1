@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, CheckCircle, Users, AlertCircle, Shield } from 'lucide-react';
 import { pollsApi, Poll as PollType, RealtimeChannel, getUserId, supabase } from '../../lib/supabaseClient';
 import { AntiSpamUtils } from '../../lib/antiSpamUtils';
-import ShareButton from '../../components/ShareButton';
+import { ShareButtonDirect } from '../../components/ShareButtonDirect';
 import useLocalStorageState from 'use-local-storage-state';
 
 
@@ -301,12 +301,9 @@ const Poll: React.FC = () => {
               )}
             </div>
             <div className="ml-4">
-              <ShareButton 
-                pollId={poll.id} 
-                pollTitle={poll.title} 
-                shareType="poll"
-                variant="outline"
-                size="md"
+              <ShareButtonDirect 
+                pollId={poll.id}
+                shareType="result"
               />
             </div>
           </div>

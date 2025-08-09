@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { ThemeProvider } from './components/ThemeProvider';
 import { SimpleThemeToggle } from './components/ThemeToggle';
 import { pollsApi, Poll, RealtimeChannel } from './lib/supabaseClient';
-import ShareButton from './components/ShareButton';
+// import ShareButton from './components/ShareButton'; // 暂时不在首页使用
+import { ShareButtonDirect } from './components/ShareButtonDirect';
 import CreatePoll from './pages/CreatePoll';
 import PollPage from './pages/Poll';
 import Result from './pages/Result';
@@ -82,6 +83,8 @@ const App: React.FC = () => {
     </ThemeProvider>
   );
 };
+
+
 
 // 首页组件
 const Home: React.FC = () => {
@@ -215,7 +218,8 @@ const Home: React.FC = () => {
           </h1>
           
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            创建实时投票，查看即时结果。支持多人同时参与，数据实时同步更新。
+            无需登录，创建实时投票，查看即时结果<br/>
+            支持多人同时参与，数据实时同步更新
           </p>
           
           <motion.div
@@ -313,12 +317,9 @@ const Home: React.FC = () => {
                             </div>
                           </div>
                           <div className="ml-2 flex-shrink-0">
-                            <ShareButton 
+                            <ShareButtonDirect 
                               pollId={poll.id}
-                              pollTitle={poll.title}
-                              shareType="poll"
-                              variant="ghost"
-                              size="sm"
+                              shareType="result"
                               className="opacity-0 group-hover:opacity-100 transition-opacity"
                             />
                           </div>

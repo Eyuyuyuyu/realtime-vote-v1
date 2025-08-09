@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Clock, Users, ArrowLeft, RefreshCw } from 'lucide-react';
 import { pollsApi, Poll, RealtimeChannel } from '../../lib/supabaseClient';
-import ShareButton from '../../components/ShareButton';
+import { ShareButtonDirect } from '../../components/ShareButtonDirect';
 
 interface ResultData {
   id: string;
@@ -175,12 +175,9 @@ const Result: React.FC = () => {
           </Link>
           
           <div className="flex items-center gap-3">
-            <ShareButton 
+            <ShareButtonDirect 
               pollId={pollResult.poll.id}
-              pollTitle={pollResult.poll.title}
               shareType="result"
-              variant="outline"
-              size="sm"
             />
             <button
               onClick={() => fetchPollResult(true)}
