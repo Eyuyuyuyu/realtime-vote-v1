@@ -25,8 +25,11 @@ alwaysApply: true
 - 支持二维码分享
 - 离线状态下按钮置灰并提示
 - 支持“截止前隐藏结果”配置
+- 所有新增功能涉及到数据表结构都要参照我的 DATABASE_SCHEMA.md 文件去设计
 
 ## Testing
 - 核心逻辑（投票提交、实时更新、过期判断）需编写单元测试
 - UI 在 iOS Safari、安卓 Chrome、桌面 Chrome 下均需正常显示
 - npm run lint / npm run build 保证要能通过
+
+## 完成一个功能之后给我一个标准的提交到 github 的 commit message（英文）

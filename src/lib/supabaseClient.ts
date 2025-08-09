@@ -263,4 +263,70 @@ export const pollsApi = {
   async unsubscribe(channel: RealtimeChannel): Promise<void> {
     await supabase.removeChannel(channel);
   },
+
+  // 获取投票结果（包含实时统计数据）
+  async getPollResults(pollId: string): Promise<{
+    poll: Poll;
+    totalVotes: number;
+    results: Array<{
+      id: string;
+      text: string;
+      votes: number;
+      percentage: number;
+    }>;
+  } | null> {
+    try {
+      // 获取投票基本信息和选项
+      const { data: poll, error: pollError } = await supabase
+        .from('polls')
+        .select(`
+          *,
+          options:poll_options(*)
+        `)
+        .eq('id', pollId)
+        .single();
+
+      if (pollError) throw pollError;
+      if (!poll) return null;
+
+      // 获取每个选项的投票数
+      const { data: voteData, error: voteError } = await supabase
+        .from('votes')
+        .select('option_id')
+        .eq('poll_id', pollId);
+
+      if (voteError) throw voteError;
+
+      // 统计各选项的投票数
+      const voteCounts: { [key: string]: number } = {};
+      voteData?.forEach(vote => {
+        voteCounts[vote.option_id] = (voteCounts[vote.option_id] || 0) + 1;
+      });
+
+      const totalVotes = voteData?.length || 0;
+
+      // 生成结果数据
+      const results = poll.options.map((option: PollOption) => ({
+        id: option.id,
+        text: option.text,
+        votes: voteCounts[option.id] || 0,
+        percentage: totalVotes > 0 ? ((voteCounts[option.id] || 0) / totalVotes) * 100 : 0,
+      }));
+
+      return {
+        poll,
+        totalVotes,
+        results,
+      };
+    } catch (error) {
+      console.error('获取投票结果失败:', error);
+      throw error;
+    }
+  },
+
+  // 检查投票是否已过期
+  isPollExpired(poll: Poll): boolean {
+    if (!poll.expires_at) return false;
+    return new Date(poll.expires_at) < new Date();
+  },
 };

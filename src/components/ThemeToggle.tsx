@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTheme, type Theme } from '../hooks/useTheme';
 
 export const ThemeToggle: React.FC = () => {
-  const { theme, setTheme, actualTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const themeOptions: { value: Theme; label: string; icon: string }[] = [
     { value: 'light', label: '浅色', icon: '☀️' },
