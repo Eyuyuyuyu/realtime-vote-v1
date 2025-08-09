@@ -25,17 +25,16 @@ const Result: React.FC = () => {
   const [pollResult, setPollResult] = useState<PollResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+
 
   const [, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
 
   // 获取投票结果数据
-  const fetchPollResult = useCallback(async (showRefreshLoader = false) => {
+  const fetchPollResult = useCallback(async () => {
     if (!id) return;
     
     try {
-      if (showRefreshLoader) setIsRefreshing(true);
-      else setLoading(true);
+      setLoading(true);
       
       const result = await pollsApi.getPollResults(id);
       setPollResult(result);
@@ -45,7 +44,6 @@ const Result: React.FC = () => {
       setError(err instanceof Error ? err.message : '获取投票结果失败');
     } finally {
       setLoading(false);
-      setIsRefreshing(false);
     }
   }, [id]);
 
@@ -168,7 +166,7 @@ const Result: React.FC = () => {
         >
           <Link
             to="/"
-            className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             返回首页
@@ -179,14 +177,6 @@ const Result: React.FC = () => {
               pollId={pollResult.poll.id}
               shareType="result"
             />
-            <button
-              onClick={() => fetchPollResult(true)}
-              disabled={isRefreshing}
-              className="inline-flex items-center px-3 py-2 text-sm text-primary hover:text-primary/80 hover:bg-muted/50 rounded-lg transition-colors disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              刷新数据
-            </button>
           </div>
         </motion.div>
 
