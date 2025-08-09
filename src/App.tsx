@@ -211,26 +211,32 @@ const Home: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-center mb-12"
+          className="text-center mb-12 px-4"
         >
-          <h1 className="text-6xl font-bold text-foreground mb-6">
+          {/* 移动端优化的标题 */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
             实时投票平台
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            无需登录，创建实时投票，查看即时结果<br/>
-            支持多人同时参与，数据实时同步更新
-          </p>
+          {/* 移动端优化的描述文字 */}
+          <div className="space-y-3 mb-8">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              无需登录，创建实时投票
+            </p>
+            <p className="text-base sm:text-lg text-muted-foreground/80 max-w-xl mx-auto">
+              支持多人同时参与，数据实时同步更新
+            </p>
+          </div>
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center px-4"
           >
             <Link
               to="/create"
-              className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium text-lg"
+              className="px-8 py-4 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
               开始创建投票
             </Link>
@@ -319,7 +325,7 @@ const Home: React.FC = () => {
                             <ShareButtonDirect 
                               pollId={poll.id}
                               shareType="result"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                             />
                           </div>
                         </div>

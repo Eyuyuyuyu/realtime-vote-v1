@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Clock, Users, ArrowLeft, RefreshCw } from 'lucide-react';
+import { AlertCircle, Clock, Users, RefreshCw, ArrowLeft } from 'lucide-react';
 import { pollsApi, Poll, RealtimeChannel } from '../../lib/supabaseClient';
 import { ShareButtonDirect } from '../../components/ShareButtonDirect';
 
@@ -156,32 +156,7 @@ const Result: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="min-h-screen bg-background"
     >
-      {/* 头部导航 - 与App.tsx中的导航栏布局保持一致 */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="max-w-6xl mx-auto px-6 py-6"
-      >
-        <div className="flex items-center justify-between mb-8">
-          <Link
-            to="/"
-            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            返回首页
-          </Link>
-          
-          <div className="flex items-center gap-3">
-            <ShareButtonDirect 
-              pollId={pollResult.poll.id}
-              shareType="result"
-            />
-          </div>
-        </div>
-      </motion.div>
-
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-6 pt-6">
 
         {/* 投票标题和状态 */}
         <motion.div
@@ -190,9 +165,23 @@ const Result: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            {pollResult.poll.title}
-          </h1>
+          {/* 标题行 - h1 和分享按钮对齐 */}
+          <div className="flex items-start justify-between mb-4">
+            <h1 className="text-4xl font-bold text-foreground flex-1 min-w-0 pr-4">
+              {pollResult.poll.title}
+            </h1>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="flex-shrink-0"
+            >
+              <ShareButtonDirect 
+                pollId={pollResult.poll.id}
+                shareType="result"
+              />
+            </motion.div>
+          </div>
           
           {pollResult.poll.description && (
             <p className="text-lg text-muted-foreground mb-4">
@@ -243,74 +232,134 @@ const Result: React.FC = () => {
 
 
 
-        {/* 投票结果表格 */}
+        {/* 投票结果 - 响应式设计 */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="bg-card border border-border rounded-lg shadow-sm overflow-hidden"
+          className="space-y-4"
         >
-          <div className="ui-table-container">
-            <table className="ui-table">
-              <thead>
-                <tr>
-                  <th className="text-left">排名</th>
-                  <th className="text-left">选项</th>
-                  <th className="text-center">票数</th>
-                  <th className="text-center">百分比</th>
-                  <th className="text-left">进度</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pollResult.results
-                  .sort((a, b) => b.votes - a.votes)
-                  .map((result, index) => (
-                  <motion.tr
-                    key={result.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                    className="hover:bg-table-row-hover transition-colors"
-                  >
-                    <td className="text-left">
-                      <div className="flex items-center">
-                        {index === 0 && result.votes > 0 ? (
-                          <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
-                            <span className="text-xs font-bold text-white">1</span>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">#{index + 1}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="text-left">
-                      <span className="font-medium text-foreground">{result.text}</span>
-                    </td>
-                    <td className="text-center">
-                      <span className="text-lg font-bold text-primary">{result.votes}</span>
-                    </td>
-                    <td className="text-center">
-                      <span className="text-sm font-medium">{result.percentage.toFixed(1)}%</span>
-                    </td>
-                    <td className="text-left">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 bg-muted rounded-full h-2 min-w-[100px]">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${result.percentage}%` }}
-                            transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
-                            className="h-2 bg-primary rounded-full"
-                          />
+          {/* 桌面端表格视图 */}
+          <div className="hidden md:block bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+            <div className="ui-table-container">
+              <table className="ui-table">
+                <thead>
+                  <tr>
+                    <th className="text-left">排名</th>
+                    <th className="text-left">选项</th>
+                    <th className="text-center">票数</th>
+                    <th className="text-center">百分比</th>
+                    <th className="text-left">进度</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pollResult.results
+                    .sort((a, b) => b.votes - a.votes)
+                    .map((result, index) => (
+                    <motion.tr
+                      key={result.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
+                      className="hover:bg-table-row-hover transition-colors"
+                    >
+                      <td className="text-left">
+                        <div className="flex items-center">
+                          {index === 0 && result.votes > 0 ? (
+                            <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                              <span className="text-xs font-bold text-white">1</span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">#{index + 1}</span>
+                          )}
                         </div>
-                        <span className="text-xs text-muted-foreground w-8 text-right">
-                          {result.percentage.toFixed(0)}%
-                        </span>
+                      </td>
+                      <td className="text-left">
+                        <span className="font-medium text-foreground">{result.text}</span>
+                      </td>
+                      <td className="text-center">
+                        <span className="text-lg font-bold text-primary">{result.votes}</span>
+                      </td>
+                      <td className="text-center">
+                        <span className="text-sm font-medium">{result.percentage.toFixed(1)}%</span>
+                      </td>
+                      <td className="text-left">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 bg-muted rounded-full h-2 min-w-[100px]">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${result.percentage}%` }}
+                              transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                              className="h-2 bg-primary rounded-full"
+                            />
+                          </div>
+                          <span className="text-xs text-muted-foreground w-8 text-right">
+                            {result.percentage.toFixed(0)}%
+                          </span>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 移动端卡片视图 */}
+          <div className="md:hidden space-y-3">
+            {pollResult.results
+              .sort((a, b) => b.votes - a.votes)
+              .map((result, index) => (
+              <motion.div
+                key={result.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
+                className="bg-card border border-border rounded-xl p-4 shadow-sm"
+              >
+                {/* 卡片头部 */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    {index === 0 && result.votes > 0 ? (
+                      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-md">
+                        <span className="text-sm font-bold text-white">1</span>
                       </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
+                    ) : (
+                      <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
+                      </div>
+                    )}
+                    <h3 className="font-medium text-foreground text-lg flex-1 min-w-0 truncate">
+                      {result.text}
+                    </h3>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-primary">{result.votes}</div>
+                    <div className="text-sm text-muted-foreground">票</div>
+                  </div>
+                </div>
+
+                {/* 进度条 */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">
+                      {result.percentage.toFixed(1)}%
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {pollResult.totalVotes > 0 ? `${result.votes}/${pollResult.totalVotes}` : '0/0'}
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-3">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${result.percentage}%` }}
+                      transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                      className="h-3 bg-primary rounded-full"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
 

@@ -60,7 +60,7 @@ export const SimpleThemeToggle: React.FC = () => {
   return (
     <motion.button
       onClick={toggleTheme}
-      className="hover:bg-muted/80 text-foreground transition-colors duration-200 w-8"
+      className="theme-toggle-button hover:bg-muted/80 text-foreground transition-colors duration-200 w-10 h-10 rounded-full flex items-center justify-center"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       aria-label="切换主题"
@@ -69,11 +69,13 @@ export const SimpleThemeToggle: React.FC = () => {
         initial={false}
         animate={{ rotate: actualTheme === 'dark' ? 360 : 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="flex items-center justify-center"
+        style={{ transformOrigin: "center center" }}
       >
         {actualTheme === 'dark' ? (
-          <span className="text-xl">🌙</span>
+          <span className="text-xl block">🌙</span>
         ) : (
-          <span className="text-xl">☀️</span>
+          <span className="text-xl block">☀️</span>
         )}
       </motion.div>
     </motion.button>
