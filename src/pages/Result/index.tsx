@@ -30,7 +30,7 @@ const Result: React.FC = () => {
   const [, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
 
   // 获取投票结果数据
-  const fetchPollResult = async (showRefreshLoader = false) => {
+  const fetchPollResult = useCallback(async (showRefreshLoader = false) => {
     if (!id) return;
     
     try {
@@ -47,12 +47,12 @@ const Result: React.FC = () => {
       setLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, [id]);
 
   // 处理实时更新
   const handleRealtimeUpdate = useCallback((payload: any) => {
     // 当有新投票时，只更新对应选项的计数
-    if (payload.new?.option_id && pollResult) {
+    if (payload.new?.option_id) {
       setPollResult(currentResult => {
         if (!currentResult) return currentResult;
         
@@ -77,15 +77,18 @@ const Result: React.FC = () => {
         };
       });
     }
-  }, [pollResult]);
+  }, []);
 
-  // 初始加载和实时订阅
+  // 初始加载
+  useEffect(() => {
+    if (!id) return;
+    fetchPollResult();
+  }, [id, fetchPollResult]);
+
+  // 实时订阅
   useEffect(() => {
     if (!id) return;
 
-    fetchPollResult();
-
-    // 订阅实时更新
     const channel = pollsApi.subscribeToVotes(id, handleRealtimeUpdate);
     setRealtimeChannel(channel);
 
@@ -94,7 +97,7 @@ const Result: React.FC = () => {
         pollsApi.unsubscribe(channel);
       }
     };
-  }, [id]);
+  }, [id, handleRealtimeUpdate]);
 
   // 检查投票是否过期
   const isExpired = pollResult ? pollsApi.isPollExpired(pollResult.poll) : false;

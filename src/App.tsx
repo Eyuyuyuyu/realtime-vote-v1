@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ThemeProvider } from './components/ThemeProvider';
 import { SimpleThemeToggle } from './components/ThemeToggle';
-import { pollsApi, Poll } from './lib/supabaseClient';
+import { pollsApi, Poll, RealtimeChannel } from './lib/supabaseClient';
 import ShareButton from './components/ShareButton';
 import CreatePoll from './pages/CreatePoll';
 import PollPage from './pages/Poll';
@@ -88,25 +88,70 @@ const Home: React.FC = () => {
   const [polls, setPolls] = React.useState<Poll[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [realtimeChannel, setRealtimeChannel] = React.useState<RealtimeChannel | null>(null);
 
   // 获取所有投票
+  const fetchPolls = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      const pollsData = await pollsApi.getPolls();
+      setPolls(pollsData);
+      setError(null);
+    } catch (err) {
+      console.error('获取投票列表失败:', err);
+      setError(err instanceof Error ? err.message : '获取投票列表失败');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // 处理实时投票更新
+  const handleRealtimeUpdate = React.useCallback((payload: any) => {
+    // 当有新投票时，更新对应的投票选项计数
+    if (payload.new?.option_id && payload.new?.poll_id) {
+      setPolls(currentPolls => 
+        currentPolls.map(poll => {
+          if (poll.id === payload.new.poll_id) {
+            return {
+              ...poll,
+              options: poll.options.map(option => 
+                option.id === payload.new.option_id 
+                  ? { ...option, vote_count: option.vote_count + 1 }
+                  : option
+              )
+            };
+          }
+          return poll;
+        })
+      );
+    }
+  }, []);
+
+  // 初始加载
   React.useEffect(() => {
-    const fetchPolls = async () => {
-      try {
-        setLoading(true);
-        const pollsData = await pollsApi.getPolls();
-        setPolls(pollsData);
-        setError(null);
-      } catch (err) {
-        console.error('获取投票列表失败:', err);
-        setError(err instanceof Error ? err.message : '获取投票列表失败');
-      } finally {
-        setLoading(false);
+    fetchPolls();
+  }, [fetchPolls]);
+
+  // 设置实时订阅
+  React.useEffect(() => {
+    const channel = pollsApi.subscribeToAllVotes(handleRealtimeUpdate);
+    setRealtimeChannel(channel);
+    
+    return () => {
+      if (channel) {
+        pollsApi.unsubscribe(channel);
       }
     };
+  }, [handleRealtimeUpdate]);
 
-    fetchPolls();
-  }, []);
+  // 清理
+  React.useEffect(() => {
+    return () => {
+      if (realtimeChannel) {
+        pollsApi.unsubscribe(realtimeChannel);
+      }
+    };
+  }, [realtimeChannel]);
 
   // 格式化时间显示
   const formatTimeAgo = (dateString: string) => {
@@ -228,7 +273,7 @@ const Home: React.FC = () => {
             <>
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-3xl font-bold text-foreground">
-                  所有投票 ({polls.length})
+                  公开投票 ({polls.length})
                 </h2>
               </div>
               

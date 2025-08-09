@@ -1,3 +1,5 @@
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,34 +16,34 @@
 @layer base {
   :root {
     /* 浅色模式 UI 配置颜色 */
-    --color-primary: #89DAFF;
-    --color-secondary: #bcd39c;
-    --color-accent: #fffc99;
-    --color-auxiliary: #eafdcf;
+    --color-primary: #fa8029;
+    --color-secondary: #f7f7f7;
+    --color-accent: #fa8029;
+    --color-auxiliary: #ffffff;
     --color-background: #ffffff;
-    --color-foreground: #333333;
-    --color-muted: #666666;
-    --color-border: #cccccc;
-    --color-destructive: #ff4d4f;
-    --color-success: #52c41a;
-    --color-warning: #faad14;
+    --color-foreground: #1f2124;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-destructive: #ef4444;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
 
     /* 浅色模式表格颜色 */
-    --table-header: #f5f5f5;
+    --table-header: #f7f7f7;
     --table-row: #ffffff;
-    --table-row-hover: #f9f9f9;
-    --table-border: #cccccc;
+    --table-row-hover: #f9fafb;
+    --table-border: #e5e7eb;
 
     /* 浅色模式按钮颜色 */
-    --btn-confirm-bg: #b1f8f2;
-    --btn-confirm-fg: #000000;
-    --btn-confirm-hover: #9ef0ea;
-    --btn-delete-bg: #ff4d4f;
+    --btn-confirm-bg: #fa8029;
+    --btn-confirm-fg: #ffffff;
+    --btn-confirm-hover: #ea580c;
+    --btn-delete-bg: #ef4444;
     --btn-delete-fg: #ffffff;
-    --btn-delete-hover: #ff7875;
-    --btn-cancel-bg: #d9d9d9;
-    --btn-cancel-fg: #000000;
-    --btn-cancel-hover: #c5c5c5;
+    --btn-delete-hover: #dc2626;
+    --btn-cancel-bg: #e5e7eb;
+    --btn-cancel-fg: #374151;
+    --btn-cancel-hover: #d1d5db;
 
     /* 其他设计变量 */
     --radius: 0.5rem;
@@ -49,34 +51,34 @@
 
   .dark {
     /* 暗色模式 UI 配置颜色 */
-    --color-primary: #81d9d4;
-    --color-secondary: #9bb47c;
-    --color-accent: #d1cc80;
-    --color-auxiliary: #c2dfb0;
-    --color-background: #1a1a1a;
-    --color-foreground: #f5f5f5;
-    --color-muted: #a0a0a0;
-    --color-border: #444444;
-    --color-destructive: #cc3b3d;
-    --color-success: #42a518;
-    --color-warning: #d18b12;
+    --color-primary: #f97316;
+    --color-secondary: #374151;
+    --color-accent: #f97316;
+    --color-auxiliary: #1f2124;
+    --color-background: #1f2124;
+    --color-foreground: #ffffff;
+    --color-muted: #9ca3af;
+    --color-border: #374151;
+    --color-destructive: #ef4444;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
 
     /* 暗色模式表格颜色 */
-    --table-header: #222222;
-    --table-row: #1a1a1a;
-    --table-row-hover: #2a2a2a;
-    --table-border: #444444;
+    --table-header: #374151;
+    --table-row: #1f2124;
+    --table-row-hover: #374151;
+    --table-border: #4b5563;
 
     /* 暗色模式按钮颜色 */
-    --btn-confirm-bg: #81d9d4;
-    --btn-confirm-fg: #000000;
-    --btn-confirm-hover: #6fcac4;
-    --btn-delete-bg: #cc3b3d;
+    --btn-confirm-bg: #f97316;
+    --btn-confirm-fg: #ffffff;
+    --btn-confirm-hover: #ea580c;
+    --btn-delete-bg: #ef4444;
     --btn-delete-fg: #ffffff;
-    --btn-delete-hover: #a52d2f;
-    --btn-cancel-bg: #555555;
+    --btn-delete-hover: #dc2626;
+    --btn-cancel-bg: #4b5563;
     --btn-cancel-fg: #ffffff;
-    --btn-cancel-hover: #404040;
+    --btn-cancel-hover: #374151;
   }
 }
 
@@ -86,7 +88,8 @@
   }
   
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
+    font-family: 'General Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     font-size: 16px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -150,28 +153,77 @@
   /* 自定义按钮样式 */
   .btn-confirm {
     @apply bg-btn-confirm text-btn-confirm-foreground hover:bg-btn-confirm-hover;
-    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
   .btn-delete {
     @apply bg-btn-delete text-btn-delete-foreground hover:bg-btn-delete-hover;
-    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
   .btn-cancel {
     @apply bg-btn-cancel text-btn-cancel-foreground hover:bg-btn-cancel-hover;
-    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  /* 主要操作按钮样式 */
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-orange-600;
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  /* 次要按钮样式 */
+  .btn-secondary {
+    @apply bg-secondary text-foreground hover:bg-gray-200 dark:hover:bg-gray-600;
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
   /* 自定义卡片样式 */
   .ui-card {
-    @apply bg-background border border-border rounded-lg shadow-sm;
+    @apply bg-background border border-border rounded-lg;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  /* 标签/徽章样式 */
+  .ui-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .ui-badge-primary {
+    @apply ui-badge bg-orange-50 text-primary border border-orange-200 dark:bg-orange-900 dark:text-orange-400 dark:border-orange-800;
+  }
+
+  .ui-badge-secondary {
+    @apply ui-badge bg-secondary text-foreground border border-border;
+  }
+
+  .ui-badge-success {
+    @apply ui-badge bg-green-50 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-400 dark:border-green-800;
+  }
+
+  .ui-badge-warning {
+    @apply ui-badge bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-900 dark:text-yellow-400 dark:border-yellow-800;
+  }
+
+  .ui-badge-danger {
+    @apply ui-badge bg-red-50 text-red-700 border border-red-200 dark:bg-red-900 dark:text-red-400 dark:border-red-800;
   }
 
   /* 自定义输入框样式 */
   .ui-input {
-    @apply bg-background border border-border rounded-md px-3 py-2;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary;
+    @apply bg-background border border-border rounded-lg px-3 py-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-primary;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .ui-input:focus {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1), 0 0 0 3px rgb(250 128 41 / 0.1);
   }
 
   /* 自定义进度条样式 */

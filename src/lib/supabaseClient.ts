@@ -225,20 +225,50 @@ export const pollsApi = {
 
   // 获取所有投票
   async getPolls(publicOnly: boolean = true): Promise<Poll[]> {
-    let query = supabase
-      .from('polls')
-      .select('*, options:poll_options(*)')
-      .order('created_at', { ascending: false });
+    try {
+      let query = supabase
+        .from('polls')
+        .select('*, options:poll_options(*)')
+        .order('created_at', { ascending: false });
 
-    // 如果只获取公开投票，添加过滤条件
-    if (publicOnly) {
-      query = query.eq('is_public', true);
+      // 如果只获取公开投票，添加过滤条件
+      if (publicOnly) {
+        query = query.eq('is_public', true);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      
+      // 实时统计每个投票的选项票数
+      const pollsWithRealVotes = await Promise.all(
+        (data || []).map(async (poll) => {
+          const optionsWithRealVotes = await Promise.all(
+            (poll.options || []).map(async (option: PollOption) => {
+              const { count } = await supabase
+                .from('votes')
+                .select('*', { count: 'exact', head: true })
+                .eq('option_id', option.id);
+
+              return {
+                ...option,
+                vote_count: count || 0
+              };
+            })
+          );
+
+          return {
+            ...poll,
+            options: optionsWithRealVotes
+          };
+        })
+      );
+
+      return pollsWithRealVotes;
+    } catch (error) {
+      console.error('获取投票列表失败:', error);
+      throw error;
     }
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-    return data || [];
   },
 
   // 投票
@@ -305,6 +335,23 @@ export const pollsApi = {
           schema: 'public', 
           table: 'votes',
           filter: `poll_id=eq.${pollId}`
+        }, 
+        callback
+      )
+      .subscribe();
+
+    return channel;
+  },
+
+  // 订阅所有投票的变化（用于首页实时更新）
+  subscribeToAllVotes(callback: (payload: any) => void): RealtimeChannel {
+    const channel = supabase
+      .channel('all-votes')
+      .on('postgres_changes', 
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'votes'
         }, 
         callback
       )

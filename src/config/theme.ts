@@ -26,16 +26,17 @@ export interface ThemeConfig {
 
 export const lightTheme: ThemeConfig = {
   colors: {
-    primary: "hsl(221.2 83.2% 53.3%)",
-    secondary: "hsl(210 40% 96%)",
-    accent: "hsl(210 40% 96%)",
-    background: "hsl(0 0% 100%)",
-    foreground: "hsl(222.2 84% 4.9%)",
-    muted: "hsl(210 40% 96%)",
-    border: "hsl(214.3 31.8% 91.4%)",
+    primary: "#fa8029",
+    secondary: "#f7f7f7",
+    accent: "#fa8029",
+    background: "#ffffff",
+    foreground: "#1f2124",
+    muted: "#6b7280",
+    border: "#e5e7eb",
   },
   fonts: {
     sans: [
+      "General Sans",
       "ui-sans-serif",
       "system-ui", 
       "-apple-system",
@@ -72,13 +73,13 @@ export const lightTheme: ThemeConfig = {
 
 export const darkTheme: ThemeConfig = {
   colors: {
-    primary: "hsl(217.2 91.2% 59.8%)",
-    secondary: "hsl(217.2 32.6% 17.5%)",
-    accent: "hsl(217.2 32.6% 17.5%)",
-    background: "hsl(222.2 84% 4.9%)",
-    foreground: "hsl(210 40% 98%)",
-    muted: "hsl(217.2 32.6% 17.5%)",
-    border: "hsl(217.2 32.6% 17.5%)",
+    primary: "#f97316",
+    secondary: "#374151",
+    accent: "#f97316",
+    background: "#1f2124",
+    foreground: "#ffffff",
+    muted: "#9ca3af",
+    border: "#374151",
   },
   fonts: lightTheme.fonts,
   spacing: lightTheme.spacing,

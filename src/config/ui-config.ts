@@ -87,60 +87,60 @@ export interface UIConfig {
 
 // 浅色模式配色
 const lightColors: ColorScheme = {
-  primary: '#b1f8f2',      // 主色：青绿色
-  secondary: '#bcd39c',    // 次色：绿色
-  accent: '#fffc99',       // 高亮色：黄色
-  auxiliary: '#eafdcf',    // 辅助色：浅绿色
+  primary: '#fa8029',      // 主色：亮橙色
+  secondary: '#f7f7f7',    // 次色：淡灰色（次级背景）
+  accent: '#fa8029',       // 高亮色：橙色
+  auxiliary: '#ffffff',    // 辅助色：纯白色
   background: '#ffffff',   // 背景色：白色
-  foreground: '#333333',   // 字体颜色：深灰色（提升对比度）
-  muted: '#666666',       // 次要文本颜色（提升对比度）
-  border: '#cccccc',      // 边框颜色（提升对比度）
-  destructive: '#ff4d4f',  // 危险色：红色
-  success: '#52c41a',     // 成功色：绿色
-  warning: '#faad14',     // 警告色：橙色
+  foreground: '#1f2124',   // 字体颜色：深灰蓝
+  muted: '#6b7280',       // 次要文本颜色
+  border: '#e5e7eb',      // 边框颜色
+  destructive: '#ef4444',  // 危险色：红色
+  success: '#10b981',     // 成功色：绿色
+  warning: '#f59e0b',     // 警告色：琥珀色
   // 表格相关颜色
-  tableHeader: '#f5f5f5',  // 表头背景：浅灰色
+  tableHeader: '#f7f7f7',  // 表头背景：淡灰色
   tableRow: '#ffffff',     // 表格行背景：白色
-  tableRowHover: '#f9f9f9', // 表格行悬停：极浅灰色
-  tableBorder: '#cccccc',  // 表格边框：中灰色
+  tableRowHover: '#f9fafb', // 表格行悬停：极浅灰色
+  tableBorder: '#e5e7eb',  // 表格边框：灰色
 };
 
 // 暗色模式配色（降低亮度，减少刺眼感）
 const darkColors: ColorScheme = {
-  primary: '#81d9d4',      // 主色调暗
-  secondary: '#9bb47c',    // 次色调暗
-  accent: '#d1cc80',       // 高亮色调暗
-  auxiliary: '#c2dfb0',    // 辅助色调暗
-  background: '#1a1a1a',   // 暗色背景
-  foreground: '#f5f5f5',   // 浅色字体
-  muted: '#a0a0a0',       // 次要文本颜色
-  border: '#444444',      // 边框颜色（提升对比度）
-  destructive: '#cc3b3d',  // 危险色调暗
-  success: '#42a518',     // 成功色调暗
-  warning: '#d18b12',     // 警告色调暗
+  primary: '#f97316',      // 主色：橙色（暗色模式调整）
+  secondary: '#374151',    // 次色：深灰色（次级背景）
+  accent: '#f97316',       // 高亮色：橙色
+  auxiliary: '#1f2124',    // 辅助色：深灰蓝
+  background: '#1f2124',   // 暗色背景：深灰蓝
+  foreground: '#ffffff',   // 浅色字体：纯白
+  muted: '#9ca3af',       // 次要文本颜色
+  border: '#374151',      // 边框颜色
+  destructive: '#ef4444',  // 危险色：红色
+  success: '#10b981',     // 成功色：绿色
+  warning: '#f59e0b',     // 警告色：琥珀色
   // 表格相关颜色
-  tableHeader: '#222222',  // 表头背景：深灰色
-  tableRow: '#1a1a1a',     // 表格行背景：深色
-  tableRowHover: '#2a2a2a', // 表格行悬停：中深灰色
-  tableBorder: '#444444',  // 表格边框：中灰色
+  tableHeader: '#374151',  // 表头背景：深灰色
+  tableRow: '#1f2124',     // 表格行背景：深色
+  tableRowHover: '#374151', // 表格行悬停：中深灰色
+  tableBorder: '#4b5563',  // 表格边框：中灰色
 };
 
 // 浅色模式按钮配色
 const lightButtons: ButtonColors = {
   confirm: {
     background: lightColors.primary,
-    foreground: '#000000',
-    hover: '#9ef0ea',
+    foreground: '#ffffff',
+    hover: '#ea580c',
   },
   delete: {
     background: lightColors.destructive,
     foreground: '#ffffff',
-    hover: '#ff7875',
+    hover: '#dc2626',
   },
   cancel: {
-    background: '#d9d9d9',
-    foreground: '#000000',
-    hover: '#c5c5c5',
+    background: '#e5e7eb',
+    foreground: '#374151',
+    hover: '#d1d5db',
   },
 };
 
@@ -148,18 +148,18 @@ const lightButtons: ButtonColors = {
 const darkButtons: ButtonColors = {
   confirm: {
     background: darkColors.primary,
-    foreground: '#000000',
-    hover: '#6fcac4',
+    foreground: '#ffffff',
+    hover: '#ea580c',
   },
   delete: {
     background: darkColors.destructive,
     foreground: '#ffffff',
-    hover: '#a52d2f',
+    hover: '#dc2626',
   },
   cancel: {
-    background: '#555555',
+    background: '#4b5563',
     foreground: '#ffffff',
-    hover: '#404040',
+    hover: '#374151',
   },
 };
 
@@ -175,6 +175,7 @@ export const uiConfig: UIConfig = {
   },
   fonts: {
     sans: [
+      'General Sans',
       'ui-sans-serif',
       'system-ui',
       '-apple-system',
@@ -222,7 +223,7 @@ export const uiConfig: UIConfig = {
     full: '9999px',
   },
   shadows: {
-    sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+    sm: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
     md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
     lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
     xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
