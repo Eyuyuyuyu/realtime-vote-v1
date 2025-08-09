@@ -154,16 +154,16 @@ const Result: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-background p-6"
+      className="min-h-screen bg-background"
     >
-      <div className="max-w-6xl mx-auto">
-        {/* 头部导航 */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex items-center justify-between mb-8"
-        >
+      {/* 头部导航 - 与App.tsx中的导航栏布局保持一致 */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="max-w-6xl mx-auto px-6 py-6"
+      >
+        <div className="flex items-center justify-between mb-8">
           <Link
             to="/"
             className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
@@ -178,7 +178,10 @@ const Result: React.FC = () => {
               shareType="result"
             />
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
+
+      <div className="max-w-6xl mx-auto px-6">
 
         {/* 投票标题和状态 */}
         <motion.div
@@ -319,7 +322,6 @@ const Result: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.6 }}
             className="text-center py-12"
           >
-            <div className="text-6xl mb-4">📊</div>
             <h3 className="text-xl font-semibold text-foreground mb-2">
               还没有人投票
             </h3>

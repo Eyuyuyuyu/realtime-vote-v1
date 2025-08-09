@@ -259,7 +259,6 @@ const Home: React.FC = () => {
             </div>
           ) : polls.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">📊</div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 还没有投票
               </h3>

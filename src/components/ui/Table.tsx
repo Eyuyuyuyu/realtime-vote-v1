@@ -60,7 +60,6 @@ const TableSkeleton: React.FC<{ columns: number; rows: number }> = ({ columns, r
 // 空状态组件
 const EmptyState: React.FC<{ text: string }> = ({ text }) => (
   <div className="text-center py-8 text-muted">
-    <div className="text-4xl mb-2">📊</div>
     <p className="text-lg">{text}</p>
   </div>
 );

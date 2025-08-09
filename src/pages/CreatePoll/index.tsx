@@ -103,7 +103,7 @@ const CreatePoll: React.FC = () => {
     >
       <div className="max-w-4xl mx-auto">
         <motion.h1 
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: 0 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-4xl font-bold text-foreground mb-8"
