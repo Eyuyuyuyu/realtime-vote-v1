@@ -46,7 +46,7 @@
     --color-auxiliary: #ffffff;
     --color-background: #ffffff;
     --color-foreground: #1f2124;
-    --color-muted: #6b7280;
+    --color-muted: #e2e2e2;
     --color-border: #e5e7eb;
     --color-destructive: #ef4444;
     --color-success: #10b981;
@@ -139,10 +139,20 @@
       padding: 12px 16px;
     }
     
-    /* 圆形按钮例外 - 保持原有尺寸 */
-    button.w-8, button[class*="w-8"], .share-button, .theme-toggle-button {
-      min-height: auto;
-      padding: 0;
+    /* 图标按钮例外 - 保持原有尺寸 */
+    button[data-variant="icon"], 
+    button[class*="size-icon"], 
+    button.w-8, 
+    button[class*="w-8"], 
+    .share-button, 
+    .theme-toggle-button {
+      min-height: auto !important;
+      padding: 0 !important;
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
     
     /* 具体尺寸保持 */
