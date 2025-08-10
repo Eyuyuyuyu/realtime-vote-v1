@@ -7,6 +7,7 @@ interface ShareButtonDirectProps {
   pollId: string;
   shareType?: 'poll' | 'result';
   className?: string;
+  showTooltip?: boolean;
 }
 
 /**
@@ -16,7 +17,8 @@ interface ShareButtonDirectProps {
 export const ShareButtonDirect: React.FC<ShareButtonDirectProps> = ({
   pollId,
   shareType = 'result',
-  className = ''
+  className = '',
+  showTooltip = false
 }) => {
   const [copied, setCopied] = useState(false);
   const [hasBeenCopied, setHasBeenCopied] = useState(false);
@@ -38,6 +40,15 @@ export const ShareButtonDirect: React.FC<ShareButtonDirectProps> = ({
     }
   };
 
+  // 生成提示文本
+  const getTooltipText = () => {
+    if (shareType === 'poll') {
+      return '分享投票链接 - 邀请朋友参与投票';
+    } else {
+      return '分享结果链接 - 查看投票结果';
+    }
+  };
+
 
 
   return (
@@ -48,6 +59,7 @@ export const ShareButtonDirect: React.FC<ShareButtonDirectProps> = ({
           <motion.button
             key="button"
             onClick={handleShare}
+            title={showTooltip ? getTooltipText() : undefined}
             className={`share-button w-8 h-8 rounded-full inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground ${className}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

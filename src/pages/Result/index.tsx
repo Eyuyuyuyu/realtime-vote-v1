@@ -179,6 +179,7 @@ const Result: React.FC = () => {
               <ShareButtonDirect 
                 pollId={pollResult.poll.id}
                 shareType="result"
+                showTooltip={true}
               />
             </motion.div>
           </div>

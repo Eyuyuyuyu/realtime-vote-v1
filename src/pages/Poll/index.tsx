@@ -303,7 +303,8 @@ const Poll: React.FC = () => {
             <div className="ml-4">
               <ShareButtonDirect 
                 pollId={poll.id}
-                shareType="result"
+                shareType={expired || totalVotes > 0 ? "result" : "poll"}
+                showTooltip={true}
               />
             </div>
           </div>
