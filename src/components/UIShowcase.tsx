@@ -3,10 +3,14 @@ import { motion } from 'framer-motion';
 import { useTheme } from '../hooks/useTheme';
 import { ThemeToggle, SimpleThemeToggle } from './ThemeToggle';
 import { Table, SimpleTable, TableColumn } from './ui/Table';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 export const UIShowcase: React.FC = () => {
   const { actualTheme } = useTheme();
   const [progress, setProgress] = useState(65);
+
+  // 重置页面滚动位置到顶部
+  useScrollToTop();
 
   // 示例数据
   const sampleData = [

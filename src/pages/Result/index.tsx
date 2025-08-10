@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Clock, Users, RefreshCw, ArrowLeft } from 'lucide-react';
 import { pollsApi, Poll, RealtimeChannel } from '../../lib/supabaseClient';
 import { ShareButtonDirect } from '../../components/ShareButtonDirect';
+import { useScrollToTop } from '../../hooks/useScrollToTop';
 
 interface ResultData {
   id: string;
@@ -28,6 +29,9 @@ const Result: React.FC = () => {
 
 
   const [, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
+
+  // 重置页面滚动位置到顶部
+  useScrollToTop();
 
   // 获取投票结果数据
   const fetchPollResult = useCallback(async () => {

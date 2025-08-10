@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button';
 import { Switch } from '../../components/ui/Switch';
 import { PollOptionManager } from '../../components/PollOptionManager';
 import { pollsApi, CreatePollInput, getUserId } from '../../lib/supabaseClient';
+import { useScrollToTop } from '../../hooks/useScrollToTop';
 
 interface FormData {
   title: string;
@@ -38,6 +39,9 @@ const CreatePoll: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // 重置页面滚动位置到顶部
+  useScrollToTop();
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};

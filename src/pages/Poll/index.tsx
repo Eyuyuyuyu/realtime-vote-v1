@@ -7,6 +7,7 @@ import { pollsApi, Poll as PollType, RealtimeChannel, getUserId, supabase } from
 import { AntiSpamUtils } from '../../lib/antiSpamUtils';
 import { ShareButtonDirect } from '../../components/ShareButtonDirect';
 import useLocalStorageState from 'use-local-storage-state';
+import { useScrollToTop } from '../../hooks/useScrollToTop';
 
 
 
@@ -24,6 +25,9 @@ const Poll: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [realtimeChannel, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
   const [antiSpamWarning, setAntiSpamWarning] = useState<string | null>(null);
+
+  // 重置页面滚动位置到顶部
+  useScrollToTop();
 
   
   // 获取用户ID（用于防重复投票）
